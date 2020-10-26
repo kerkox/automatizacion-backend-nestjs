@@ -1,5 +1,8 @@
 require('dotenv').config();
 export const config = {
+  api:{
+    ROUTE_BASE:'/api/'
+  },
   db: {
     database: process.env.DB_DATABASE || 'database',
     username: process.env.DB_USER || 'user',

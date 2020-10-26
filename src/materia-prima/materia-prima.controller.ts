@@ -1,9 +1,10 @@
+import { config } from './../config/config';
 import { CreateMateriaPrimaDto } from './dto/create-materia-prima.dto';
 import { MateriaPrimaService } from './materia-prima.service';
 import { Body, Controller, Get, Param, Post, Put, Delete } from '@nestjs/common';
 import { MateriaPrima } from './model/materia-prima.model';
 
-@Controller('api/materiasPrimas')
+@Controller(config.api.ROUTE_BASE+'materia-prima')
 export class MateriaPrimaController {
   constructor(private materiaPrimaService: MateriaPrimaService) { }
 
