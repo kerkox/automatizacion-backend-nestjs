@@ -6,6 +6,7 @@ import { MateriaPrimaModule } from './materia-prima/materia-prima.module';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { ReferenciaProductoModule } from './referencia-producto/referencia-producto.module';
 import { PresentacionProductoModule } from './presentacion-producto/presentacion-producto.module';
+import { TipoProductoModule } from './tipo-producto/tipo-producto.module';
 
 @Module({
   imports: [
@@ -21,7 +22,8 @@ import { PresentacionProductoModule } from './presentacion-producto/presentacion
     }),
     MateriaPrimaModule,
     ReferenciaProductoModule,
-    PresentacionProductoModule
+    PresentacionProductoModule,
+    TipoProductoModule
   ],
   controllers: [AppController],
   providers: [AppService],
