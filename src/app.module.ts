@@ -7,6 +7,7 @@ import { SequelizeModule } from '@nestjs/sequelize';
 import { ReferenciaProductoModule } from './referencia-producto/referencia-producto.module';
 import { PresentacionProductoModule } from './presentacion-producto/presentacion-producto.module';
 import { TipoProductoModule } from './tipo-producto/tipo-producto.module';
+import { PrioridadModule } from './prioridad/prioridad.module';
 
 @Module({
   imports: [
@@ -23,7 +24,8 @@ import { TipoProductoModule } from './tipo-producto/tipo-producto.module';
     MateriaPrimaModule,
     ReferenciaProductoModule,
     PresentacionProductoModule,
-    TipoProductoModule
+    TipoProductoModule,
+    PrioridadModule
   ],
   controllers: [AppController],
   providers: [AppService],

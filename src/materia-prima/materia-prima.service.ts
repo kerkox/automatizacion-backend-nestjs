@@ -21,11 +21,7 @@ export class MateriaPrimaService {
   }
 
   async findOne(id: string): Promise<MateriaPrima> {
-    return this.materiaPrimaModel.findOne({
-      where: {
-        id
-      }
-    });
+    return this.materiaPrimaModel.findByPk(id);
   }
 
   async update(id: string, createMateriaPrimaDto: CreateMateriaPrimaDto) {
