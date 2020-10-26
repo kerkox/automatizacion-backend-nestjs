@@ -5,6 +5,7 @@ import { AppService } from './app.service';
 import { MateriaPrimaModule } from './materia-prima/materia-prima.module';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { ReferenciaProductoModule } from './referencia-producto/referencia-producto.module';
+import { PresentacionProductoModule } from './presentacion-producto/presentacion-producto.module';
 
 @Module({
   imports: [
@@ -19,7 +20,8 @@ import { ReferenciaProductoModule } from './referencia-producto/referencia-produ
       synchronize: true,
     }),
     MateriaPrimaModule,
-    ReferenciaProductoModule
+    ReferenciaProductoModule,
+    PresentacionProductoModule
   ],
   controllers: [AppController],
   providers: [AppService],
