@@ -8,6 +8,8 @@ import { ReferenciaProductoModule } from './referencia-producto/referencia-produ
 import { PresentacionProductoModule } from './presentacion-producto/presentacion-producto.module';
 import { TipoProductoModule } from './tipo-producto/tipo-producto.module';
 import { PrioridadModule } from './prioridad/prioridad.module';
+import { OrdenProduccionModule } from './orden-produccion/orden-produccion.module';
+import { OrdenPedidoModule } from './orden-pedido/orden-pedido.module';
 
 @Module({
   imports: [
@@ -25,7 +27,9 @@ import { PrioridadModule } from './prioridad/prioridad.module';
     ReferenciaProductoModule,
     PresentacionProductoModule,
     TipoProductoModule,
-    PrioridadModule
+    PrioridadModule,
+    OrdenProduccionModule,
+    OrdenPedidoModule
   ],
   controllers: [AppController],
   providers: [AppService],
