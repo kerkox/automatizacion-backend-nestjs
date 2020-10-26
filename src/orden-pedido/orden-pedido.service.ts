@@ -32,7 +32,7 @@ export class OrdenPedidoService {
 
   async findAll(): Promise<OrdenPedido[]> {
     return this.ordenPedidoModel.findAll({
-      attributes: ['id', 'cliente', 'createdAt', 'updatedAt'],
+      attributes: ['id', 'cliente', 'cantidad','createdAt', 'updatedAt'],
       include: [
         { 
           model:Prioridad,
