@@ -14,6 +14,11 @@ export class OrdenPedido extends Model<OrdenPedido> {
   @Column
   cantidad: number;
 
+  @Column({
+    type: DataType.ENUM('GENERADA', 'EN PRODUCCION', 'TERMINADA')
+  })
+  estado: string
+
   @ForeignKey(() => ReferenciaProducto)
   @Column({
     type: DataType.INTEGER,
@@ -59,4 +64,7 @@ export class OrdenPedido extends Model<OrdenPedido> {
 
   @BelongsTo(() => Prioridad)
   prioridad: Prioridad
+
+
+
 }
