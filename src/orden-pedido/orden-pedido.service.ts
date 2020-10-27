@@ -55,7 +55,31 @@ export class OrdenPedidoService {
   }
 
   async findOne(id: string): Promise<OrdenPedido> {
-    return this.ordenPedidoModel.findByPk(id);
+    let ordenPedido = await this.ordenPedidoModel.findByPk(id,{
+      attributes: ['id', 'cliente', 'cantidad', 'createdAt', 'updatedAt'],
+      include: [
+        {
+          model: Prioridad,
+          attributes: ['id', 'descripcion']
+        },
+        {
+          model: ReferenciaProducto,
+          attributes: ['id', 'descripcion']
+        },
+        {
+          model: TipoProducto,
+          attributes: ['id', 'descripcion']
+        },
+        {
+          model: PresentacionProducto,
+          attributes: ['id', 'descripcion', 'cantidad']
+        }
+      ]
+    });
+    if(!ordenPedido) {
+      throw new NotFoundException({ error: "ID no existe", status:404}, "ID no existe");
+    }
+    return ordenPedido;
   }
 
   async update(id: string, createOrdenPedidoDto: CreateOrdenPedidoDto) {
