@@ -15,7 +15,8 @@ export class OrdenPedido extends Model<OrdenPedido> {
   cantidad: number;
 
   @Column({
-    type: DataType.ENUM('GENERADA', 'EN PRODUCCION', 'TERMINADA')
+    type: DataType.ENUM('GENERADA', 'EN PRODUCCION', 'TERMINADA'),
+    defaultValue:'GENERADA'
   })
   estado: string
 
