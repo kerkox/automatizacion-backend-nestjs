@@ -14,7 +14,7 @@ export class OrdenPedidoService {
     @InjectModel(OrdenPedido)
     private ordenPedidoModel: typeof OrdenPedido) { }
 
-  create(createOrdenPedidoDto: CreateOrdenPedidoDto): Promise<OrdenPedido> {
+  async create(createOrdenPedidoDto: CreateOrdenPedidoDto): Promise<OrdenPedido> {
     try {
       const ordenPedido = new OrdenPedido();
       ordenPedido.cliente = createOrdenPedidoDto.cliente;
@@ -23,7 +23,28 @@ export class OrdenPedidoService {
       ordenPedido.tipo_producto_id = createOrdenPedidoDto.tipo_producto_id;
       ordenPedido.referencia_producto_id = createOrdenPedidoDto.referencia_producto_id;
       ordenPedido.presentacion_producto_id = createOrdenPedidoDto.presentacion_producto_id;
-      return ordenPedido.save();
+      await ordenPedido.save();
+      return ordenPedido.reload({
+        attributes: ['id', 'cliente', 'cantidad', 'estado', 'createdAt', 'updatedAt'],
+        include: [
+          {
+            model: Prioridad,
+            attributes: ['id', 'descripcion']
+          },
+          {
+            model: ReferenciaProducto,
+            attributes: ['id', 'descripcion']
+          },
+          {
+            model: TipoProducto,
+            attributes: ['id', 'descripcion']
+          },
+          {
+            model: PresentacionProducto,
+            attributes: ['id', 'descripcion', 'cantidad']
+          }
+        ]
+      })
     } catch(err) {
       console.error("err: ",err)
       throw new BadRequestException(err)
@@ -32,7 +53,7 @@ export class OrdenPedidoService {
 
   async findAll(): Promise<OrdenPedido[]> {
     return this.ordenPedidoModel.findAll({
-      attributes: ['id', 'cliente', 'cantidad','createdAt', 'updatedAt'],
+      attributes: ['id', 'cliente', 'cantidad','estado','createdAt', 'updatedAt'],
       include: [
         { 
           model:Prioridad,
