@@ -1,7 +1,8 @@
 import { Column, Model, Table } from 'sequelize-typescript';
 
 @Table({
-  underscored: true
+  underscored: true,
+  tableName:'materias_primas'
 })
 export class MateriaPrima extends Model<MateriaPrima> {
   @Column({

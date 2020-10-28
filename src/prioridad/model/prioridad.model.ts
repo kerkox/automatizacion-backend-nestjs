@@ -3,7 +3,7 @@ import { Column, HasMany, Model, Table } from 'sequelize-typescript';
 
 @Table({
   underscored: true,
-  modelName:'prioridad'
+  tableName:'prioridades'
 })
 export class Prioridad extends Model<Prioridad> {
   @Column({

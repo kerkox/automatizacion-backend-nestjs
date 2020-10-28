@@ -5,7 +5,8 @@ import { BelongsTo, Column, DataType, ForeignKey, Model, Table } from 'sequelize
 import { ReferenciaProducto } from 'src/referencia-producto/model/referencia-producto.model';
 
 @Table({
-  underscored: true
+  underscored: true,
+  tableName:'ordenes_pedidos'
 })
 export class OrdenPedido extends Model<OrdenPedido> {
   @Column({

@@ -10,6 +10,7 @@ import { TipoProductoModule } from './tipo-producto/tipo-producto.module';
 import { PrioridadModule } from './prioridad/prioridad.module';
 import { OrdenProduccionModule } from './orden-produccion/orden-produccion.module';
 import { OrdenPedidoModule } from './orden-pedido/orden-pedido.module';
+import { RecetaModule } from './receta/receta.module';
 
 @Module({
   imports: [
@@ -29,7 +30,8 @@ import { OrdenPedidoModule } from './orden-pedido/orden-pedido.module';
     TipoProductoModule,
     PrioridadModule,
     OrdenProduccionModule,
-    OrdenPedidoModule
+    OrdenPedidoModule,
+    RecetaModule
   ],
   controllers: [AppController],
   providers: [AppService],
