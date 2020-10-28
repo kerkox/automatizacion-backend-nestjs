@@ -11,6 +11,7 @@ import { PrioridadModule } from './prioridad/prioridad.module';
 import { OrdenProduccionModule } from './orden-produccion/orden-produccion.module';
 import { OrdenPedidoModule } from './orden-pedido/orden-pedido.module';
 import { RecetaModule } from './receta/receta.module';
+import { MateriaPrimaRecetaModule } from './materia-prima-receta/materia-prima-receta.module';
 
 @Module({
   imports: [
@@ -31,7 +32,8 @@ import { RecetaModule } from './receta/receta.module';
     PrioridadModule,
     OrdenProduccionModule,
     OrdenPedidoModule,
-    RecetaModule
+    RecetaModule,
+    MateriaPrimaRecetaModule
   ],
   controllers: [AppController],
   providers: [AppService],

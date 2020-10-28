@@ -1,3 +1,5 @@
+import { MateriaPrimaReceta } from 'src/materia-prima-receta/model/materia-prima-receta';
+import { MateriaPrima } from './../materia-prima/model/materia-prima.model';
 import { TipoProducto } from './../tipo-producto/model/tipo-producto.model';
 import { ReferenciaProducto } from 'src/referencia-producto/model/referencia-producto.model';
 import { Receta } from './model/receta.model';
@@ -42,6 +44,13 @@ export class RecetaService {
       {
         model: TipoProducto,
         attributes: ['id', 'descripcion']
+      },
+      {
+        model: MateriaPrima,
+        attributes: ['id','descripcion'],
+        through: {
+          attributes: ['porcentaje']
+        }
       }
     ]
   }
@@ -55,6 +64,24 @@ export class RecetaService {
     receta.temperatura_calentamiento = createRecetaDto.temperatura_calentamiento;
     receta.temperatura_precalentamiento = createRecetaDto.temperatura_precalentamiento;
     receta.densidad = createRecetaDto.densidad;
+    
+    return receta;
+  }
+
+  async agregarMateriasPrimasReceta(receta: Receta, createRecetaDto: CreateRecetaDto): Promise<Receta> {
+    
+    
+    let materias_id = receta.materias_primas.map(materia => new MateriaPrima({id:materia.id}))
+    await receta.$remove('materias_primas',materias_id)
+    createRecetaDto.materias_primas.forEach(async materia_prima_porcentaje => {
+      console.log("Materia prima Receta creando: ", materia_prima_porcentaje)
+      await receta.$add('materias_primas', materia_prima_porcentaje.materia_prima_id, {
+        through: {
+          porcentaje: materia_prima_porcentaje.porcentaje
+        }
+      })
+    })
+    
     return receta;
   }
 
@@ -65,6 +92,10 @@ export class RecetaService {
       let receta = new Receta();
       receta = this.loadDataFromDto(receta,createRecetaDto);
       await receta.save();
+      console.log("------------------------Ya se guardo la receta")
+      console.log("=================CREANDO RELACION MATERIAS PRIMAS=====================")
+      receta = await this.agregarMateriasPrimasReceta(receta,createRecetaDto);
+      console.log("=================TERMINA RELACION MATERIAS PRIMAS=====================")
       return receta.reload({
         attributes: this.attributes,
         include: this.includes
@@ -76,7 +107,7 @@ export class RecetaService {
   }
 
   async findAll(): Promise<Receta[]> {
-    return this.recetaModel.findAll({
+    return await this.recetaModel.findAll({
       attributes: this.attributes,
       include: this.includes
     });
@@ -100,7 +131,9 @@ export class RecetaService {
         throw new NotFoundException({ error: "ID no existe", status: 404 }, "ID no existe");
       }
       receta = this.loadDataFromDto(receta, createRecetaDto);
-      return receta.save();
+      receta = await this.agregarMateriasPrimasReceta(receta, createRecetaDto);
+      await receta.save();
+      return await this.findOne(id);
 
     } catch (err) {
       console.error("err: ", err)
@@ -116,7 +149,5 @@ export class RecetaService {
       throw new NotFoundException({ error: "ID no existe", status: 404 }, "ID no existe");
     }
   }
-
-
 
 }

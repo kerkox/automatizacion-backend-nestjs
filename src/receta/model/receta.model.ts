@@ -1,6 +1,8 @@
+import { MateriaPrimaReceta } from './../../materia-prima-receta/model/materia-prima-receta';
 import { TipoProducto } from './../../tipo-producto/model/tipo-producto.model';
 import { ReferenciaProducto } from 'src/referencia-producto/model/referencia-producto.model';
-import { Column, Model, Table, DataType, ForeignKey, BelongsTo } from 'sequelize-typescript';
+import { Column, Model, Table, DataType, ForeignKey, BelongsTo, BelongsToMany } from 'sequelize-typescript';
+import { MateriaPrima } from 'src/materia-prima/model/materia-prima.model';
 
 @Table({
   underscored: true,
@@ -68,6 +70,9 @@ export class Receta extends Model<Receta>{
 
   @BelongsTo(() => TipoProducto)
   tipo_producto: TipoProducto
+
+  @BelongsToMany(() => MateriaPrima, () => MateriaPrimaReceta,'receta_id','materia_prima_id')
+  materias_primas: MateriaPrima[]
 
 
 }

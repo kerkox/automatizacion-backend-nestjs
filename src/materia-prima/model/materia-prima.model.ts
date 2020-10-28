@@ -1,4 +1,6 @@
-import { Column, Model, Table } from 'sequelize-typescript';
+import { Receta } from './../../receta/model/receta.model';
+import { BelongsToMany, Column, Model, Table } from 'sequelize-typescript';
+import { MateriaPrimaReceta } from 'src/materia-prima-receta/model/materia-prima-receta';
 
 @Table({
   underscored: true,
@@ -9,4 +11,7 @@ export class MateriaPrima extends Model<MateriaPrima> {
     allowNull:false
   })
   descripcion: string;
+
+  @BelongsToMany(() => MateriaPrima, () => MateriaPrimaReceta, 'materia_prima_id', 'receta_id')
+  recetas: Receta[]
 }
