@@ -6,9 +6,13 @@ import { Column, HasMany, Model, Table } from 'sequelize-typescript';
   modelName:'prioridad'
 })
 export class Prioridad extends Model<Prioridad> {
-  @Column
+  @Column({
+    allowNull:false
+  })
   descripcion: string;
-  @Column
+  @Column({
+    allowNull:false
+  })
   nivel: number;
   @HasMany(() => OrdenPedido)
   ordenesPedido: OrdenPedido[];

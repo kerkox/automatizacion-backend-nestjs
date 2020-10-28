@@ -8,10 +8,14 @@ import { ReferenciaProducto } from 'src/referencia-producto/model/referencia-pro
   underscored: true
 })
 export class OrdenPedido extends Model<OrdenPedido> {
-  @Column
+  @Column({
+    allowNull:false
+  })
   cliente: string;
 
-  @Column
+  @Column({
+    allowNull:false
+  })
   cantidad: number;
 
   @Column({
@@ -23,7 +27,8 @@ export class OrdenPedido extends Model<OrdenPedido> {
   @ForeignKey(() => ReferenciaProducto)
   @Column({
     type: DataType.INTEGER,
-    field: 'referencia_producto_id'
+    field: 'referencia_producto_id',
+    allowNull:false
   })
   referencia_producto_id: number;
 
@@ -35,7 +40,8 @@ export class OrdenPedido extends Model<OrdenPedido> {
   @ForeignKey(() => TipoProducto)
   @Column({
     type: DataType.INTEGER,
-    field: 'tipo_producto_id'
+    field: 'tipo_producto_id',
+    allowNull:false
   })
   tipo_producto_id: number;
 
@@ -47,7 +53,8 @@ export class OrdenPedido extends Model<OrdenPedido> {
   @ForeignKey(() => PresentacionProducto)
   @Column({
     type: DataType.INTEGER,
-    field: 'presentacion_producto_id'
+    field: 'presentacion_producto_id',
+    allowNull:false
   })
   presentacion_producto_id: number;
 
@@ -59,7 +66,8 @@ export class OrdenPedido extends Model<OrdenPedido> {
   @ForeignKey(() => Prioridad)
   @Column({
     type: DataType.INTEGER,
-    field: 'prioridad_id'
+    field: 'prioridad_id',
+    allowNull:false
   })
   prioridad_id: number;
 

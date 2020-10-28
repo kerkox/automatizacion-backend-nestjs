@@ -5,9 +5,13 @@ import { Column, HasMany, Model, Table } from 'sequelize-typescript';
   underscored: true
 })
 export class PresentacionProducto extends Model<PresentacionProducto> {
-  @Column
+  @Column({
+    allowNull: false
+  })
   descripcion: string;
-  @Column
+  @Column({
+    allowNull: false
+  })
   cantidad: number;
   @HasMany(() => OrdenPedido)
   ordenesPedido: OrdenPedido[];

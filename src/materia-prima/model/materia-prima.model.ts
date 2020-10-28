@@ -4,6 +4,8 @@ import { Column, Model, Table } from 'sequelize-typescript';
   underscored: true
 })
 export class MateriaPrima extends Model<MateriaPrima> {
-  @Column
+  @Column({
+    allowNull:false
+  })
   descripcion: string;
 }

@@ -5,7 +5,9 @@ import { Column, HasMany, Model, Table } from 'sequelize-typescript';
   underscored: true
 })
 export class ReferenciaProducto extends Model<ReferenciaProducto> {
-  @Column
+  @Column({
+    allowNull:false
+  })
   descripcion: string;
   @HasMany(() => OrdenPedido)
   ordenesPedido: OrdenPedido[];
