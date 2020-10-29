@@ -6,6 +6,7 @@ import { Receta } from './model/receta.model';
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { CreateRecetaDto } from './dto/create-receta-dto.interface';
+import { Sequelize } from 'sequelize';
 
 @Injectable()
 export class RecetaService {
@@ -13,7 +14,7 @@ export class RecetaService {
   includes:any
   attributes: any
   constructor(@InjectModel(Receta)
-  private recetaModel: typeof Receta) {
+  private recetaModel: typeof Receta, private sequelize: Sequelize) {
       this.inicilizarCampos();
   }
 
@@ -70,9 +71,10 @@ export class RecetaService {
 
   async agregarMateriasPrimasReceta(receta: Receta, createRecetaDto: CreateRecetaDto): Promise<Receta> {
     
-    
-    let materias_id = receta.materias_primas.map(materia => new MateriaPrima({id:materia.id}))
-    await receta.$remove('materias_primas',materias_id)
+    if (receta.materias_primas && receta.materias_primas.length > 0){
+      let materias_id = receta.materias_primas.map(materia => new MateriaPrima({id:materia.id}))
+      await receta.$remove('materias_primas',materias_id)
+    }
     createRecetaDto.materias_primas.forEach(async materia_prima_porcentaje => {
       console.log("Materia prima Receta creando: ", materia_prima_porcentaje)
       await receta.$add('materias_primas', materia_prima_porcentaje.materia_prima_id, {
