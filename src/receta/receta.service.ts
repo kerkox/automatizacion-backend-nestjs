@@ -1,4 +1,3 @@
-import { MateriaPrimaReceta } from 'src/materia-prima-receta/model/materia-prima-receta';
 import { MateriaPrima } from './../materia-prima/model/materia-prima.model';
 import { TipoProducto } from './../tipo-producto/model/tipo-producto.model';
 import { ReferenciaProducto } from 'src/referencia-producto/model/referencia-producto.model';
@@ -6,24 +5,24 @@ import { Receta } from './model/receta.model';
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { CreateRecetaDto } from './dto/create-receta-dto.interface';
-import { Sequelize } from 'sequelize';
+import { Sequelize, Transaction } from 'sequelize';
 
 @Injectable()
 export class RecetaService {
 
-  includes:any
+  includes: any
   attributes: any
   constructor(@InjectModel(Receta)
   private recetaModel: typeof Receta, private sequelize: Sequelize) {
-      this.inicilizarCampos();
+    this.inicilizarCampos();
   }
 
-  inicilizarCampos(){
+  inicilizarCampos() {
     this.cargarAttributes()
     this.cargarIncludes();
   }
 
-  cargarAttributes(){
+  cargarAttributes() {
     this.attributes = [
       'id',
       'tiempo_mezclado',
@@ -36,7 +35,7 @@ export class RecetaService {
       'updatedAt']
   }
 
-  cargarIncludes(){
+  cargarIncludes() {
     this.includes = [
       {
         model: ReferenciaProducto,
@@ -48,7 +47,7 @@ export class RecetaService {
       },
       {
         model: MateriaPrima,
-        attributes: ['id','descripcion'],
+        attributes: ['id', 'descripcion'],
         through: {
           attributes: ['porcentaje']
         }
@@ -56,7 +55,7 @@ export class RecetaService {
     ]
   }
 
-  loadDataFromDto(receta: Receta, createRecetaDto: CreateRecetaDto) :  Receta {
+  loadDataFromDto(receta: Receta, createRecetaDto: CreateRecetaDto): Receta {
     receta.tiempo_mezclado = createRecetaDto.tiempo_mezclado;
     receta.tiempo_precalentamiento = createRecetaDto.tiempo_precalentamiento;
     receta.tiempo_premezclado = createRecetaDto.tiempo_premezclado;
@@ -65,44 +64,78 @@ export class RecetaService {
     receta.temperatura_calentamiento = createRecetaDto.temperatura_calentamiento;
     receta.temperatura_precalentamiento = createRecetaDto.temperatura_precalentamiento;
     receta.densidad = createRecetaDto.densidad;
-    
+
     return receta;
   }
 
-  async agregarMateriasPrimasReceta(receta: Receta, createRecetaDto: CreateRecetaDto): Promise<Receta> {
-    
-    if (receta.materias_primas && receta.materias_primas.length > 0){
-      let materias_id = receta.materias_primas.map(materia => new MateriaPrima({id:materia.id}))
-      await receta.$remove('materias_primas',materias_id)
-    }
-    createRecetaDto.materias_primas.forEach(async materia_prima_porcentaje => {
-      console.log("Materia prima Receta creando: ", materia_prima_porcentaje)
-      await receta.$add('materias_primas', materia_prima_porcentaje.materia_prima_id, {
-        through: {
-          porcentaje: materia_prima_porcentaje.porcentaje
-        }
-      })
+  agregarMateriasPrimasReceta(receta: Receta, createRecetaDto: CreateRecetaDto, transaction: Transaction): Promise<Receta> {
+    return new Promise((resolve, reject) => {
+      this.removeMateriasPrimasReceta(receta, transaction)
+        .then(res => {
+          let promises = [];
+          createRecetaDto.materias_primas.forEach(materia_prima_porcentaje => {
+            // console.log("Materia prima Receta creando: ", materia_prima_porcentaje)
+            promises.push(receta.$add('materias_primas', materia_prima_porcentaje.materia_prima_id, {
+              through: {
+                porcentaje: materia_prima_porcentaje.porcentaje
+              },
+              transaction: transaction
+            }))
+          })
+          Promise.all(promises).then(res => {
+            // console.log("retorno de recetas con materias primas agregadas: ", receta)
+            resolve(receta);
+          }).catch(err => {
+            console.error("Ocurrio un error al agregar las materias primas", err)
+            reject(err)
+          })
+        })
+        .catch(err => reject(err))
     })
-    
-    return receta;
   }
 
-  
+  removeMateriasPrimasReceta(receta: Receta, transaction: Transaction): Promise<void> {
+    return new Promise((resolve, reject) => {
+      if (receta.materias_primas && receta.materias_primas.length > 0) {
+        let materias_id = receta.materias_primas.map(materia => new MateriaPrima({ id: materia.id }))
+        receta.$remove('materias_primas', materias_id, {
+          transaction: transaction
+        }).then(res => resolve())
+          .catch(err => reject(err))
+      } else {
+        resolve()
+      }
+    })
+  }
+
+
 
   async create(createRecetaDto: CreateRecetaDto): Promise<Receta> {
     try {
-      let receta = new Receta();
-      receta = this.loadDataFromDto(receta,createRecetaDto);
-      await receta.save();
-      console.log("------------------------Ya se guardo la receta")
-      console.log("=================CREANDO RELACION MATERIAS PRIMAS=====================")
-      receta = await this.agregarMateriasPrimasReceta(receta,createRecetaDto);
-      console.log("=================TERMINA RELACION MATERIAS PRIMAS=====================")
-      return receta.reload({
-        attributes: this.attributes,
-        include: this.includes
+      let receta = await this.sequelize.transaction(t => {
+        return new Promise<Receta>((resolve, reject) => {
+          let receta = new Receta();
+          receta = this.loadDataFromDto(receta, createRecetaDto);
+          receta.save({
+            transaction: t
+          })
+            .then(result => {
+              // console.log("------------------------Ya se guardo la receta")
+              // console.log("=================CREANDO RELACION MATERIAS PRIMAS=====================")
+              this.agregarMateriasPrimasReceta(receta, createRecetaDto, t)
+                .then(receta => {
+                  // console.log("Receta recibida: ", receta)
+                  // console.log("=================TERMINA RELACION MATERIAS PRIMAS=====================")
+                  resolve(receta);
+                }).catch(err => reject(err));
+            }).catch(err => reject(err));
+        })
       })
+      // console.log("Todo ocurrio normalmente**************")
+      return this.findOne(receta.id)
+
     } catch (err) {
+      console.log("######################Todo Fallo")
       console.error("err: ", err)
       throw new BadRequestException(err)
     }
@@ -121,7 +154,7 @@ export class RecetaService {
       include: this.includes
     });
     if (!receta) {
-      throw new NotFoundException({ error: "ID no existe", status: 404 }, "ID no existe");
+      throw new NotFoundException({ error: `ID: ${id} no existe`, status: 404 }, `ID: ${id} no existe`);
     }
     return receta;
   }
@@ -130,14 +163,26 @@ export class RecetaService {
     let receta = await this.findOne(id);
     try {
       if (!receta) {
-        throw new NotFoundException({ error: "ID no existe", status: 404 }, "ID no existe");
+        throw new NotFoundException({ error: `ID: ${id} no existe`, status: 404 }, `ID: ${id} no existe`);
       }
-      receta = this.loadDataFromDto(receta, createRecetaDto);
-      receta = await this.agregarMateriasPrimasReceta(receta, createRecetaDto);
-      await receta.save();
-      return await this.findOne(id);
-
+      await this.sequelize.transaction(t => {
+        return new Promise<Receta>((resolve, reject) => {
+          receta = this.loadDataFromDto(receta, createRecetaDto);
+          this.agregarMateriasPrimasReceta(receta, createRecetaDto, t)
+          .then(receta => {
+            receta.save({ transaction: t })
+            .then(receta => {
+              // console.log("Todo ocurrio normalmente**************")
+              resolve(receta)              
+            })
+            .catch(err => reject(err))
+          })
+          .catch(err => reject(err))
+        })
+      })
+      return this.findOne(id)
     } catch (err) {
+      console.log("######################Todo Fallo")
       console.error("err: ", err)
       throw new BadRequestException(err)
     }
