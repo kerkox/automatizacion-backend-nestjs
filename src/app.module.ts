@@ -13,6 +13,7 @@ import { OrdenProduccionModule } from './orden-produccion/orden-produccion.modul
 import { OrdenPedidoModule } from './orden-pedido/orden-pedido.module';
 import { RecetaModule } from './receta/receta.module';
 import { MateriaPrimaRecetaModule } from './materia-prima-receta/materia-prima-receta.module';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
@@ -29,7 +30,8 @@ import { MateriaPrimaRecetaModule } from './materia-prima-receta/materia-prima-r
     OrdenProduccionModule,
     OrdenPedidoModule,
     RecetaModule,
-    MateriaPrimaRecetaModule
+    MateriaPrimaRecetaModule,
+    UserModule
   ],
   controllers: [AppController],
   providers: [AppService],
