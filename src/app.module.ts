@@ -1,4 +1,5 @@
-import { config } from './config/config';
+import { ConfigService } from './shared/config/config.service';
+import { SharedModule } from './shared/shared.module';
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -15,15 +16,10 @@ import { MateriaPrimaRecetaModule } from './materia-prima-receta/materia-prima-r
 
 @Module({
   imports: [
-    SequelizeModule.forRoot({
-      dialect: 'mysql',
-      host: config.db.host,
-      port: config.db.port,
-      username: config.db.username,
-      password: config.db.password,
-      database: config.db.database,      
-      autoLoadModels: true,
-      synchronize: true,
+    SequelizeModule.forRootAsync({
+      imports: [SharedModule],
+      useFactory: async (configService: ConfigService) => (configService.sequelizeOrmConfig),
+      inject: [ConfigService]
     }),
     MateriaPrimaModule,
     ReferenciaProductoModule,

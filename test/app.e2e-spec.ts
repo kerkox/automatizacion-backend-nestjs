@@ -1,3 +1,5 @@
+import { TransformInterceptor } from './../src/interceptors/transform.interceptor';
+import { ErrorsInterceptor } from './../src/interceptors/errors.interceptor';
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { AppModule } from './../src/app.module';
@@ -12,6 +14,8 @@ describe('AppController (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
+    app.useGlobalInterceptors(new TransformInterceptor())
+    app.useGlobalInterceptors(new ErrorsInterceptor())
     await app.init();
   });
 
@@ -19,6 +23,7 @@ describe('AppController (e2e)', () => {
     return request(app.getHttpServer())
       .get('/')
       .expect(200)
-      .expect('Hello World!');
+      .expect({data:'Hello World!'});
   });
+
 });

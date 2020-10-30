@@ -1,4 +1,4 @@
-import { MateriaPrimaReceta } from 'src/materia-prima-receta/model/materia-prima-receta';
+import { MateriaPrimaReceta } from './model/materia-prima-receta';
 import { Module } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';
 
