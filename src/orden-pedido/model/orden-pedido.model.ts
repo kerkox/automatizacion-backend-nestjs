@@ -1,3 +1,4 @@
+import { EstadoOrden } from './../../shared/enum/estado-orden';
 import { Prioridad } from './../../prioridad/model/prioridad.model';
 import { PresentacionProducto } from './../../presentacion-producto/model/presentacion-producto.model';
 import { TipoProducto } from './../../tipo-producto/model/tipo-producto.model';
@@ -20,10 +21,13 @@ export class OrdenPedido extends Model<OrdenPedido> {
   cantidad: number;
 
   @Column({
-    type: DataType.ENUM('GENERADA', 'EN PRODUCCION', 'TERMINADA'),
-    defaultValue:'GENERADA'
+    type: DataType.ENUM(
+      EstadoOrden.GENERADA,
+      EstadoOrden.EN_PRODUCCION,
+      EstadoOrden.TERMINADA),
+    defaultValue: EstadoOrden.GENERADA,
   })
-  estado: string
+  estado: EstadoOrden
 
   @ForeignKey(() => ReferenciaProducto)
   @Column({

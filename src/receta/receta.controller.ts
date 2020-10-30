@@ -1,7 +1,7 @@
 import { config } from './../config/config';
 import { Body, Controller, Get, Param, Post, Put, Delete } from '@nestjs/common';
 import { RecetaService } from './receta.service';
-import { CreateRecetaDto } from './dto/create-receta-dto.interface';
+import { CreateRecetaDto } from './dto/create-receta.dto';
 import { Receta } from './model/receta.model';
 
 @Controller(config.api.ROUTE_BASE + 'receta')

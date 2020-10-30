@@ -4,7 +4,7 @@ import { TipoProducto } from './../tipo-producto/model/tipo-producto.model';
 import { Receta } from './model/receta.model';
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { CreateRecetaDto } from './dto/create-receta-dto.interface';
+import { CreateRecetaDto } from './dto/create-receta.dto';
 import { Sequelize, Transaction } from 'sequelize';
 
 @Injectable()

@@ -1,4 +1,4 @@
-import { MateriaPrimaPorcentaje } from './create-materia-prima-dto.intercafe';
+import { MateriaPrimaPorcentaje } from './create-materia-prima.dto';
 
 export interface CreateRecetaDto {
   referencia_producto_id: number;

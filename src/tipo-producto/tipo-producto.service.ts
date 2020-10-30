@@ -8,7 +8,7 @@ export class TipoProductoService {
 
   constructor(
     @InjectModel(TipoProducto)
-    private tipoProdcutoModel: typeof TipoProducto) { }
+    private tipoProductoModel: typeof TipoProducto) { }
 
   create(createTipoProductoDto: CreateTipoProductoDto): Promise<TipoProducto> {
     const tipoProducto = new TipoProducto();
@@ -17,11 +17,11 @@ export class TipoProductoService {
   }
 
   async findAll(): Promise<TipoProducto[]> {
-    return this.tipoProdcutoModel.findAll();
+    return this.tipoProductoModel.findAll();
   }
 
   async findOne(id: string): Promise<TipoProducto> {
-    const tipoProducto = await this.tipoProdcutoModel.findByPk(id);
+    const tipoProducto = await this.tipoProductoModel.findByPk(id);
     if (tipoProducto) {
       return tipoProducto;
     } else {
