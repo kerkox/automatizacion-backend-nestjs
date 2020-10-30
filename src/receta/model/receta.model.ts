@@ -1,8 +1,8 @@
+import { MateriaPrima } from './../../materia-prima/model/materia-prima.model';
+import { ReferenciaProducto } from './../../referencia-producto/model/referencia-producto.model';
 import { MateriaPrimaReceta } from './../../materia-prima-receta/model/materia-prima-receta';
 import { TipoProducto } from './../../tipo-producto/model/tipo-producto.model';
-import { ReferenciaProducto } from 'src/referencia-producto/model/referencia-producto.model';
 import { Column, Model, Table, DataType, ForeignKey, BelongsTo, BelongsToMany } from 'sequelize-typescript';
-import { MateriaPrima } from 'src/materia-prima/model/materia-prima.model';
 
 @Table({
   underscored: true,

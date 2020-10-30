@@ -1,6 +1,6 @@
+import { ReferenciaProducto } from './../referencia-producto/model/referencia-producto.model';
 import { MateriaPrima } from './../materia-prima/model/materia-prima.model';
 import { TipoProducto } from './../tipo-producto/model/tipo-producto.model';
-import { ReferenciaProducto } from 'src/referencia-producto/model/referencia-producto.model';
 import { Receta } from './model/receta.model';
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';

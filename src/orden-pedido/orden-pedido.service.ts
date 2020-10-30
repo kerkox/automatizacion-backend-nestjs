@@ -5,7 +5,7 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { InjectModel } from '@nestjs/sequelize';
 import { CreateOrdenPedidoDto } from './dto/create-orden-pedido.dto';
 import { OrdenPedido } from './model/orden-pedido.model';
-import { ReferenciaProducto } from 'src/referencia-producto/model/referencia-producto.model';
+import { ReferenciaProducto } from './../referencia-producto/model/referencia-producto.model';
 
 @Injectable()
 export class OrdenPedidoService {

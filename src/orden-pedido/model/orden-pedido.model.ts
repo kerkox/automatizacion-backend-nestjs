@@ -2,7 +2,7 @@ import { Prioridad } from './../../prioridad/model/prioridad.model';
 import { PresentacionProducto } from './../../presentacion-producto/model/presentacion-producto.model';
 import { TipoProducto } from './../../tipo-producto/model/tipo-producto.model';
 import { BelongsTo, Column, DataType, ForeignKey, Model, Table } from 'sequelize-typescript';
-import { ReferenciaProducto } from 'src/referencia-producto/model/referencia-producto.model';
+import { ReferenciaProducto } from './../../referencia-producto/model/referencia-producto.model';
 
 @Table({
   underscored: true,

@@ -1,6 +1,6 @@
+import { MateriaPrimaReceta } from './../../materia-prima-receta/model/materia-prima-receta';
 import { Receta } from './../../receta/model/receta.model';
 import { BelongsToMany, Column, Model, Table } from 'sequelize-typescript';
-import { MateriaPrimaReceta } from 'src/materia-prima-receta/model/materia-prima-receta';
 
 @Table({
   underscored: true,
