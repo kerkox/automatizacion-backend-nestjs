@@ -14,7 +14,7 @@ switch(process.env.NODE_ENV){
   case 'development':
     configuration = configDev
     default: 
-    configuration = configTest
+    configuration = configDev
 }
 
 export default configuration;

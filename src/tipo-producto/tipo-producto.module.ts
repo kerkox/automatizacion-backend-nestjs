@@ -6,7 +6,7 @@ import { SequelizeModule } from '@nestjs/sequelize';
 
 @Module({
   imports: [SequelizeModule.forFeature([TipoProducto])],
-  controllers: [TipoProductoController],
+  controllers: [TipoProductoController ],
   providers: [TipoProductoService]
 })
 export class TipoProductoModule {}

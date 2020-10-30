@@ -14,6 +14,7 @@ import { OrdenPedidoModule } from './orden-pedido/orden-pedido.module';
 import { RecetaModule } from './receta/receta.module';
 import { MateriaPrimaRecetaModule } from './materia-prima-receta/materia-prima-receta.module';
 import { UserModule } from './user/user.module';
+import { InventarioModule } from './inventario/inventario.module';
 
 @Module({
   imports: [
@@ -31,7 +32,8 @@ import { UserModule } from './user/user.module';
     OrdenPedidoModule,
     RecetaModule,
     MateriaPrimaRecetaModule,
-    UserModule
+    UserModule,
+    InventarioModule
   ],
   controllers: [AppController],
   providers: [AppService],
