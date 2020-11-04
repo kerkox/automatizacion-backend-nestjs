@@ -169,15 +169,15 @@ export class RecetaService {
         return new Promise<Receta>((resolve, reject) => {
           receta = this.loadDataFromDto(receta, createRecetaDto);
           this.agregarMateriasPrimasReceta(receta, createRecetaDto, t)
-          .then(receta => {
-            receta.save({ transaction: t })
             .then(receta => {
-              // console.log("Todo ocurrio normalmente**************")
-              resolve(receta)              
+              receta.save({ transaction: t })
+                .then(receta => {
+                  // console.log("Todo ocurrio normalmente**************")
+                  resolve(receta)
+                })
+                .catch(err => reject(err))
             })
             .catch(err => reject(err))
-          })
-          .catch(err => reject(err))
         })
       })
       return this.findOne(id)
