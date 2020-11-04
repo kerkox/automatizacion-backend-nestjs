@@ -114,21 +114,11 @@ export class UserService {
     return pass;
   }
 
-  private getUserPlainObject(user: User){
-    return {
-      name: user.name,
-      lastname: user.lastname,
-      email: user.email,
-      role: user.role,
-      id: user.id
-    }
-  }
-
+  
   async signToken(user: User) {
-    // const payload: JwtPayload = {
-    //   email: user.email
-    // }
-    const payload = this.getUserPlainObject(user)
+    const payload: JwtPayload = {
+      email: user.email
+    }    
     return sign(payload, this.jwtPrivateKey, {
       expiresIn: this.configService.tokenExpires
     })

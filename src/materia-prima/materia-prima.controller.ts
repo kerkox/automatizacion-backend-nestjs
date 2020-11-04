@@ -1,14 +1,16 @@
 import { config } from './../config/config';
 import { CreateMateriaPrimaDto } from './dto/create-materia-prima.dto';
 import { MateriaPrimaService } from './materia-prima.service';
-import { Body, Controller, Get, Param, Post, Put, Delete } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Put, Delete, UseGuards } from '@nestjs/common';
 import { MateriaPrima } from './model/materia-prima.model';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller(config.api.ROUTE_BASE+'materia-prima')
 export class MateriaPrimaController {
   constructor(private materiaPrimaService: MateriaPrimaService) { }
 
   @Get()
+  // @UseGuards(AuthGuard('jwt'))
   async findAll(): Promise<MateriaPrima[]> {
     return this.materiaPrimaService.findAll();
   }
