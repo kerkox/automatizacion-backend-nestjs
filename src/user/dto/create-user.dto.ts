@@ -1,8 +1,21 @@
+import { IsEmail, IsEnum, IsOptional, IsString, MinLength } from 'class-validator';
 import { ROLE } from './../../shared/enum/role';
 export class CreateUserDto {
-  name: string
-  lastname:string
-  password: string
-  email:string
-  role:ROLE
+  
+  @IsString()
+  readonly name: string
+  
+  @IsString()
+  readonly lastname:string
+  
+  @IsString()
+  @MinLength(6)
+  readonly password: string
+  
+  @IsEmail()
+  readonly email:string
+
+  @IsOptional()
+  @IsEnum(ROLE)
+  readonly role:ROLE
 }

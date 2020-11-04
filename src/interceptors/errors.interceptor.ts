@@ -1,15 +1,18 @@
-import { 
+import {
   BadGatewayException,
   BadRequestException,
   CallHandler,
   ExecutionContext,
+  HttpException,
+  HttpStatus,
   Injectable,
   InternalServerErrorException,
   NestInterceptor,
-  NotFoundException } from "@nestjs/common";
+  NotFoundException
+} from "@nestjs/common";
 import { Observable, throwError } from "rxjs";
 import { catchError } from 'rxjs/operators'
-import { ConnectionRefusedError } from "sequelize";
+import { ConnectionRefusedError, UniqueConstraintError } from "sequelize";
 import { ForeignKeyConstraintError } from "sequelize";
 
 @Injectable()
@@ -22,19 +25,34 @@ export class ErrorsInterceptor implements NestInterceptor {
           console.log("err", err)
           console.log("==========================")
           let exception = null;
+
+          if (err instanceof HttpException) {
+            exception = err
+          }
           if (err instanceof BadRequestException) {
-            exception = new BadRequestException(err);
+            exception = err;
           }
           if (err instanceof BadGatewayException) {
             exception = new BadGatewayException(err);
           }
           if (err instanceof NotFoundException) {
             let error = {
-              message:err['response']['error'],
+              message: err['response']['error'],
               status: err['status']
             }
             exception = new NotFoundException(error);
           }
+          if (err instanceof UniqueConstraintError) {
+            if (err.fields.hasOwnProperty('email')) {
+              exception = new HttpException(
+                `User with email '${err.errors[0].value}' already exists`,
+                HttpStatus.CONFLICT,
+              );
+            } else {
+              exception = err
+            }
+          }
+
           if (err instanceof ForeignKeyConstraintError) {
             let error = {
               message: `No existe el ID del siguiente campo: ${err.fields}`,

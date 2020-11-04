@@ -14,4 +14,5 @@ export const config = {
     synchronize: true,
   },
   jwtPrivateKey: 'jwtPrivateKey',
+  TOKEN_EXPIRES: process.env.TOKEN_EXPIRES || '48h'
 };

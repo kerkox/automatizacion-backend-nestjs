@@ -10,4 +10,8 @@ export class ConfigService {
   get jwtConfig() {
     return { privateKey: config.jwtPrivateKey };
   }
+
+  get tokenExpires() {
+    return config.TOKEN_EXPIRES
+  }
 }
