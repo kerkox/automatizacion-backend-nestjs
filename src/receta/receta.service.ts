@@ -159,6 +159,15 @@ export class RecetaService {
     return receta;
   }
 
+  async findOneByTipoyReferncia(tipo_producto_id: number, referencia_producto_id: number): Promise<Receta>{
+    return await this.recetaModel.findOne({
+      where: {
+        referencia_producto_id,
+        tipo_producto_id
+      }
+    })
+  }
+
   async update(id: string, createRecetaDto: CreateRecetaDto) {
     let receta = await this.findOne(id);
     try {

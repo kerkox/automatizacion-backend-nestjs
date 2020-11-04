@@ -1,8 +1,9 @@
+import { OrdenProduccion } from './../../orden-produccion/model/orden-produccion.model';
 import { EstadoOrden } from './../../shared/enum/estado-orden';
 import { Prioridad } from './../../prioridad/model/prioridad.model';
 import { PresentacionProducto } from './../../presentacion-producto/model/presentacion-producto.model';
 import { TipoProducto } from './../../tipo-producto/model/tipo-producto.model';
-import { BelongsTo, Column, DataType, ForeignKey, Model, Table } from 'sequelize-typescript';
+import { BelongsTo, Column, DataType, ForeignKey, HasOne, Model, Table } from 'sequelize-typescript';
 import { ReferenciaProducto } from './../../referencia-producto/model/referencia-producto.model';
 
 @Table({
@@ -79,6 +80,8 @@ export class OrdenPedido extends Model<OrdenPedido> {
   @BelongsTo(() => Prioridad)
   prioridad: Prioridad
 
+  @HasOne(() => OrdenProduccion)
+  orden_produccion: OrdenProduccion
 
 
 }

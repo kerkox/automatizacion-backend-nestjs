@@ -7,6 +7,7 @@ import { RecetaService } from './receta.service';
 @Module({
   imports:[SequelizeModule.forFeature([Receta])],  
   controllers: [RecetaController],
-  providers: [RecetaService]
+  providers: [RecetaService],
+  exports: [RecetaService]
 })
 export class RecetaModule {}
