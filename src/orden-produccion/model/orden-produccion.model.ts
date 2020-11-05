@@ -29,7 +29,7 @@ export class OrdenProduccion extends Model<OrdenProduccion> {
     allowNull: true,
     type:DataType.DATE
   })
-  fecha_incio: Date
+  fecha_inicio: Date
 
   @Column({
     allowNull: true,

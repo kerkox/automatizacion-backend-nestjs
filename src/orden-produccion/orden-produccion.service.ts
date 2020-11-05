@@ -1,3 +1,7 @@
+import { PresentacionProducto } from './../presentacion-producto/model/presentacion-producto.model';
+import { TipoProducto } from './../tipo-producto/model/tipo-producto.model';
+import { ReferenciaProducto } from './../referencia-producto/model/referencia-producto.model';
+import { Prioridad } from './../prioridad/model/prioridad.model';
 import { PresentacionProductoService } from './../presentacion-producto/presentacion-producto.service';
 import { RecetaService } from './../receta/receta.service';
 import { OrdenPedido } from './../orden-pedido/model/orden-pedido.model';
@@ -31,6 +35,7 @@ export class OrdenProduccionService {
       'fecha_inicio',
       'fecha_terminado',
       'lotes_totales',
+      'lotes_ejecutados',
       'created_at',
       'updated_at'
     ]
@@ -40,7 +45,26 @@ export class OrdenProduccionService {
     this.includes = [
       {
         model: OrdenPedido,
-        attributes: ['id', 'densidad', 'created_at']
+        attributes: ['id', 'cliente','cantidad','estado', 'created_at'],
+        include: [
+          {
+            model: Prioridad,
+            attributes: ['id', 'descripcion']
+          },
+          {
+            model: ReferenciaProducto,
+            attributes: ['id', 'descripcion']
+          },
+          {
+            model: TipoProducto,
+            attributes: ['id', 'descripcion']
+          },
+          {
+            model: PresentacionProducto,
+            attributes: ['id', 'descripcion', 'cantidad']
+          }      
+        ]
+        
       },      
     ]
   }
@@ -55,9 +79,9 @@ export class OrdenProduccionService {
 
     // obtener las toneladas totales 
     let receta = await this.recetaService.findOneByRefernciayTipo(ordenPedido.referencia_producto_id, ordenPedido.tipo_producto_id)
-    console.log("===================================")
-    console.log("receta encontrada: ",receta)
-    console.log("===================================")
+    // console.log("===================================")
+    // console.log("receta encontrada: ",receta)
+    // console.log("===================================")
     if (!receta) {
       let tipo = ordenPedido.tipo_producto.descripcion;
       let referencia = ordenPedido.referencia_producto.descripcion
