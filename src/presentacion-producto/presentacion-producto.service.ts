@@ -21,11 +21,11 @@ export class PresentacionProductoService {
     return this.presentacionProductoModel.findAll();
   }
 
-  async findOne(id: string): Promise<PresentacionProducto> {
+  async findOne(id: number): Promise<PresentacionProducto> {
     return this.presentacionProductoModel.findByPk(id);
   }
 
-  async update(id: string, createPresentacionProductoDto: CreatePresentacionProductoDto) {
+  async update(id: number, createPresentacionProductoDto: CreatePresentacionProductoDto) {
     const presentacionProducto = await this.findOne(id);
     if (presentacionProducto) {
       presentacionProducto.descripcion = createPresentacionProductoDto.descripcion;
@@ -36,7 +36,7 @@ export class PresentacionProductoService {
     }
   }
 
-  async delete(id: string): Promise<void> {
+  async delete(id: number): Promise<void> {
     const presentacionProducto = await this.findOne(id);
     if (presentacionProducto) {
       await presentacionProducto.destroy();

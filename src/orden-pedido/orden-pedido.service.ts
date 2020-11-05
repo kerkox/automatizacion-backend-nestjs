@@ -2,11 +2,12 @@ import { OrdenProduccionService } from './../orden-produccion/orden-produccion.s
 import { PresentacionProducto } from './../presentacion-producto/model/presentacion-producto.model';
 import { TipoProducto } from './../tipo-producto/model/tipo-producto.model';
 import { Prioridad } from './../prioridad/model/prioridad.model';
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, HttpException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { CreateOrdenPedidoDto } from './dto/create-orden-pedido.dto';
 import { OrdenPedido } from './model/orden-pedido.model';
 import { ReferenciaProducto } from './../referencia-producto/model/referencia-producto.model';
+import { Sequelize } from 'sequelize';
 
 @Injectable()
 export class OrdenPedidoService {
@@ -17,6 +18,7 @@ export class OrdenPedidoService {
     @InjectModel(OrdenPedido)
     private ordenPedidoModel: typeof OrdenPedido,
     private ordenProduccionService: OrdenProduccionService,
+    private sequelize: Sequelize
     ) {
       this.inicilizarCampos()
     }
@@ -72,19 +74,25 @@ export class OrdenPedidoService {
 
   async create(createOrdenPedidoDto: CreateOrdenPedidoDto): Promise<OrdenPedido> {
     try {
-      let ordenPedido = new OrdenPedido();
-      ordenPedido = this.loadDataFromDto(ordenPedido, createOrdenPedidoDto);      
-      let ordenPedidoGuardado = await ordenPedido.save();
-      let ordenPedidoDB = await this.findOne(ordenPedidoGuardado.id);
-      // Aqui se crea la Orden de Produccion con los calulos realizados
-      await this.ordenProduccionService.generarOrdenProduccion(ordenPedidoDB);
+      let ordenPedido = await this.sequelize.transaction(async t => {
+        let ordenPedido = new OrdenPedido();
+        ordenPedido = this.loadDataFromDto(ordenPedido, createOrdenPedidoDto);
+        let ordenPedidoGuardado = await ordenPedido.save({
+          transaction: t
+        });
+        let ordenPedidoDB = await this.findOne(ordenPedidoGuardado.id);
+        // Aqui se crea la Orden de Produccion con los calulos realizados
+        await this.ordenProduccionService.generarOrdenProduccion(ordenPedidoDB, t);
 
-      return ordenPedido.reload({
-        attributes: this.attributes,
-        include: this.includes
+        return ordenPedidoDB
+
       })
+      return ordenPedido
     } catch(err) {
       console.error("err: ",err)
+      if(err instanceof HttpException) {
+        throw err
+      }
       throw new BadRequestException(err)
     }
   }

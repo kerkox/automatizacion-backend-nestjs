@@ -1,5 +1,5 @@
+import { PresentacionProductoModule } from './../presentacion-producto/presentacion-producto.module';
 import { RecetaModule } from './../receta/receta.module';
-import { OrdenPedidoService } from './../orden-pedido/orden-pedido.service';
 import { OrdenProduccion } from './model/orden-produccion.model';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { Module } from '@nestjs/common';
@@ -9,7 +9,8 @@ import { OrdenProduccionController } from './orden-produccion.controller';
 @Module({
   imports: [
     SequelizeModule.forFeature([OrdenProduccion]),
-    RecetaModule
+    RecetaModule,
+    PresentacionProductoModule
   ],
   providers: [OrdenProduccionService],
   controllers: [OrdenProduccionController],

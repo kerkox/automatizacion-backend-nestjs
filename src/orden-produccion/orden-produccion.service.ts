@@ -1,3 +1,4 @@
+import { PresentacionProductoService } from './../presentacion-producto/presentacion-producto.service';
 import { RecetaService } from './../receta/receta.service';
 import { OrdenPedido } from './../orden-pedido/model/orden-pedido.model';
 import { OrdenProduccion } from './model/orden-produccion.model';
@@ -13,7 +14,8 @@ export class OrdenProduccionService {
   constructor(@InjectModel(OrdenProduccion)
   private ordenProduccionModel: typeof OrdenProduccion, 
   private sequelize: Sequelize,
-  private recetaService: RecetaService) {
+  private recetaService: RecetaService,
+  private presentacionProductoService: PresentacionProductoService) {
     this.inicilizarCampos();
   }
 
@@ -43,15 +45,16 @@ export class OrdenProduccionService {
     ]
   }
 
-  async generarOrdenProduccion(ordenPedido: OrdenPedido): Promise<OrdenProduccion> {
+  async generarOrdenProduccion(ordenPedido: OrdenPedido, transaction:Transaction): Promise<OrdenProduccion> {
     let ordenProduccion = new OrdenProduccion();
-    // Obtener los militos totales presentacion x cantidad
     
-    let contenido_ml = ordenPedido.presentacion_producto.cantidad
-    let mililitros_totales = contenido_ml * ordenPedido.cantidad
+    let presenteacionProducto = await this.presentacionProductoService.findOne(ordenPedido.presentacion_producto_id)
+    
+    // Obtener los militos totales presentacion (ml) x cantidad de productos
+    let mililitros_totales = presenteacionProducto.cantidad * ordenPedido.cantidad
 
     // obtener las toneladas totales 
-    let receta = await this.recetaService.findOneByRefernciayTipo(ordenPedido.referencia_producto.id, ordenPedido.tipo_producto.id)
+    let receta = await this.recetaService.findOneByRefernciayTipo(ordenPedido.referencia_producto_id, ordenPedido.tipo_producto_id)
     console.log("===================================")
     console.log("receta encontrada: ",receta)
     console.log("===================================")
@@ -69,7 +72,7 @@ export class OrdenProduccionService {
     ordenProduccion.lotes_ejecutados = 0;
     ordenProduccion.orden_pedido_id = ordenPedido.id
     ordenProduccion.cantidad = toneladas_totales;
-    return await ordenProduccion.save();
+    return await ordenProduccion.save({ transaction: transaction});
   }
 
  

@@ -19,17 +19,17 @@ export class PresentacionProductoController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string): Promise<PresentacionProducto> {
+  findOne(@Param('id') id: number): Promise<PresentacionProducto> {
     return this.presentacionProductoService.findOne(id);
   }
 
   @Put(':id')
-  update(@Param('id') id: string, @Body() updatePresentacionProductoDto: CreatePresentacionProductoDto) {
+  update(@Param('id') id: number, @Body() updatePresentacionProductoDto: CreatePresentacionProductoDto) {
     return this.presentacionProductoService.update(id, updatePresentacionProductoDto)
   }
 
   @Delete(':id')
-  delete(@Param('id') id: string): Promise<void> {
+  delete(@Param('id') id: number): Promise<void> {
     return this.presentacionProductoService.delete(id);
   }
 
