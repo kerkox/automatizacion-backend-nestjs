@@ -8,7 +8,19 @@ export class ReferenciaProductoService {
 
   constructor(
     @InjectModel(ReferenciaProducto)
-    private referenciaProdcutoModel: typeof ReferenciaProducto) { }
+    private referenciaProdcutoModel: typeof ReferenciaProducto) { 
+      this.inicializarValores();
+    }
+
+    async inicializarValores(){
+      let result = await this.findAll();
+      if(result.length == 0) {
+        await this.referenciaProdcutoModel.bulkCreate([
+          { descripcion: 'Shampoo' },
+          { descripcion: 'Acondicionador' }
+        ])
+      }
+    }
 
   create(createReferenciaProductoDto: CreateReferenciaProductoDto): Promise<ReferenciaProducto> {
     const referenciaProducto = new ReferenciaProducto();
