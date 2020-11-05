@@ -8,7 +8,19 @@ export class PresentacionProductoService {
 
   constructor(
     @InjectModel(PresentacionProducto)
-    private presentacionProductoModel: typeof PresentacionProducto) { }
+    private presentacionProductoModel: typeof PresentacionProducto) {
+    this.inicializarValores();
+  }
+
+  async inicializarValores() {
+    let result = await this.findAll();
+    if (result.length == 0) {
+      await this.presentacionProductoModel.bulkCreate([
+        { descripcion: '450 ml', cantidad: 450 },
+        { descripcion: '250 ml', cantidad: 250 }
+      ])
+    }
+  }
 
   create(createPresentacionProductoDto: CreatePresentacionProductoDto): Promise<PresentacionProducto> {
     const presentacionProducto = new PresentacionProducto();
