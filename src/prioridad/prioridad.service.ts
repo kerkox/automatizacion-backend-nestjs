@@ -8,7 +8,20 @@ export class PrioridadService {
 
   constructor(
     @InjectModel(Prioridad)
-    private prioridadModel: typeof Prioridad) { }
+    private prioridadModel: typeof Prioridad) {
+      this.inicializarValores();
+     }
+
+  async inicializarValores() {
+    let result = await this.findAll();
+    if (result.length == 0) {
+      await this.prioridadModel.bulkCreate([
+        { descripcion: 'Alta', nivel: 1 },
+        { descripcion: 'Media', nivel: 2 },
+        { descripcion: 'Baja', nivel: 3 }
+      ])
+    }
+  }
 
   create(createPrioridadDto: CreatePrioridadDto): Promise<Prioridad> {
     const prioridad = new Prioridad();
