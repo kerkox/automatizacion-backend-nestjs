@@ -14,7 +14,8 @@ export class OrdenProduccion extends Model<OrdenProduccion> {
 
   @Column({
     allowNull:false,
-    type: DataType.SMALLINT
+    type: DataType.SMALLINT,
+    defaultValue: 0
   })
   lotes_ejecutados: number;
 

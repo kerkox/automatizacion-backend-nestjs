@@ -1,5 +1,4 @@
-import { RecetaService } from './../receta/receta.service';
-import { OrdenProduccion } from './../orden-produccion/model/orden-produccion.model';
+import { OrdenProduccionService } from './../orden-produccion/orden-produccion.service';
 import { PresentacionProducto } from './../presentacion-producto/model/presentacion-producto.model';
 import { TipoProducto } from './../tipo-producto/model/tipo-producto.model';
 import { Prioridad } from './../prioridad/model/prioridad.model';
@@ -17,7 +16,7 @@ export class OrdenPedidoService {
   constructor(
     @InjectModel(OrdenPedido)
     private ordenPedidoModel: typeof OrdenPedido,
-    private recetaService: RecetaService,
+    private ordenProduccionService: OrdenProduccionService,
     ) {
       this.inicilizarCampos()
     }
@@ -75,9 +74,10 @@ export class OrdenPedidoService {
     try {
       let ordenPedido = new OrdenPedido();
       ordenPedido = this.loadDataFromDto(ordenPedido, createOrdenPedidoDto);      
-      let ordenPedidoDB = await ordenPedido.save();
+      let ordenPedidoGuardado = await ordenPedido.save();
+      let ordenPedidoDB = await this.findOne(ordenPedidoGuardado.id);
       // Aqui se crea la Orden de Produccion con los calulos realizados
-      this.generarOrdenProduccion(ordenPedidoDB);
+      await this.ordenProduccionService.generarOrdenProduccion(ordenPedidoDB);
 
       return ordenPedido.reload({
         attributes: this.attributes,
@@ -89,24 +89,7 @@ export class OrdenPedidoService {
     }
   }
 
-  async generarOrdenProduccion(ordenPedido:OrdenPedido): Promise<OrdenProduccion>{
-    let ordenProduccion = new OrdenProduccion();
-    // Obtener los militos totales presentacion x cantidad
-    let contenido_ml = ordenPedido.presentacion_producto.cantidad
-    let mililitros_totales = contenido_ml * ordenPedido.cantidad
-
-    // obtener las toneladas totales 
-    let receta = await this.recetaService.findOneByTipoyReferncia(ordenPedido.tipo_producto_id,ordenPedido.referencia_producto_id)
-    if(!receta){
-      throw new Error("No existe una receta para ese tipo y referencia de producto")
-    }
-    let toneladas_totales = receta.densidad * mililitros_totales
-    
-    ordenProduccion.orden_pedido_id = ordenPedido.id
-    ordenProduccion.cantidad = toneladas_totales;
-    return  await ordenProduccion.save();
-  }
-
+ 
   async findAll(): Promise<OrdenPedido[]> {
     return this.ordenPedidoModel.findAll({
       attributes: this.attributes,
