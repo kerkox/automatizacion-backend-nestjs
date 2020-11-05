@@ -8,14 +8,14 @@ export class ReferenciaProductoService {
 
   constructor(
     @InjectModel(ReferenciaProducto)
-    private referenciaProdcutoModel: typeof ReferenciaProducto) { 
+    private referenciaProductoModel: typeof ReferenciaProducto) { 
       this.inicializarValores();
     }
 
     async inicializarValores(){
       let result = await this.findAll();
       if(result.length == 0) {
-        await this.referenciaProdcutoModel.bulkCreate([
+        await this.referenciaProductoModel.bulkCreate([
           { descripcion: 'Shampoo' },
           { descripcion: 'Acondicionador' }
         ])
@@ -29,11 +29,11 @@ export class ReferenciaProductoService {
   }
 
   async findAll(): Promise<ReferenciaProducto[]> {
-    return this.referenciaProdcutoModel.findAll();
+    return this.referenciaProductoModel.findAll();
   }
 
   async findOne(id: string): Promise<ReferenciaProducto> {
-    const referenciaProducto = await this.referenciaProdcutoModel.findByPk(id);
+    const referenciaProducto = await this.referenciaProductoModel.findByPk(id);
     if (referenciaProducto){
       return referenciaProducto;
     } else {

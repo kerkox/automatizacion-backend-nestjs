@@ -8,7 +8,20 @@ export class TipoProductoService {
 
   constructor(
     @InjectModel(TipoProducto)
-    private tipoProductoModel: typeof TipoProducto) { }
+    private tipoProductoModel: typeof TipoProducto) {
+      this.inicializarValores();
+     }
+
+  async inicializarValores() {
+    let result = await this.findAll();
+    if (result.length == 0) {
+      await this.tipoProductoModel.bulkCreate([
+        { descripcion: 'Lisos' },
+        { descripcion: 'Risos' },
+        { descripcion: 'Duos' }
+      ])
+    }
+  }
 
   create(createTipoProductoDto: CreateTipoProductoDto): Promise<TipoProducto> {
     const tipoProducto = new TipoProducto();
