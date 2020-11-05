@@ -21,7 +21,7 @@ export class OrdenProduccion extends Model<OrdenProduccion> {
 
   @Column({
     allowNull: false,
-    type: DataType.DOUBLE(10,6)
+    type: DataType.DOUBLE(16,2)    
   })
   cantidad: number
 

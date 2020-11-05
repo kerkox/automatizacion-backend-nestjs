@@ -77,10 +77,10 @@ export class OrdenPedidoService {
       let ordenPedido = await this.sequelize.transaction(async t => {
         let ordenPedido = new OrdenPedido();
         ordenPedido = this.loadDataFromDto(ordenPedido, createOrdenPedidoDto);
-        let ordenPedidoGuardado = await ordenPedido.save({
+        let ordenPedidoDB = await ordenPedido.save({
           transaction: t
         });
-        let ordenPedidoDB = await this.findOne(ordenPedidoGuardado.id);
+        
         // Aqui se crea la Orden de Produccion con los calulos realizados
         await this.ordenProduccionService.generarOrdenProduccion(ordenPedidoDB, t);
 

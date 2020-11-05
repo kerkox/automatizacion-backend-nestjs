@@ -40,7 +40,7 @@ export class ErrorsInterceptor implements NestInterceptor {
               message: err['response']['error'],
               status: err['status']
             }
-            exception = new NotFoundException(error);
+            exception = new NotFoundException(error.message);
           }
           if (err instanceof UniqueConstraintError) {
             if (err.fields.hasOwnProperty('email')) {
