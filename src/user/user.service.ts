@@ -1,6 +1,6 @@
 import { UserLoginResponseDto } from './dto/user-login-response.dto';
 import { ConfigService } from './../shared/config/config.service';
-import { BadRequestException, Body, HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { CreateUserDto } from './dto/create-user.dto';
 import { User } from './model/user.model';
@@ -8,8 +8,6 @@ import { compare, hashSync } from 'bcrypt'
 import { JwtPayload } from './auth/jwt-payload.model';
 import { sign } from 'jsonwebtoken';
 import { UserLoginRequestDto } from './dto/user-login-request.dto';
-import { validateOrReject } from 'class-validator';
-import { UserDto } from './dto/user.dto';
 
 
 @Injectable()

@@ -12,8 +12,7 @@ import {
 } from "@nestjs/common";
 import { Observable, throwError } from "rxjs";
 import { catchError } from 'rxjs/operators'
-import { ConnectionRefusedError, UniqueConstraintError } from "sequelize";
-import { ForeignKeyConstraintError } from "sequelize";
+import { ConnectionRefusedError, UniqueConstraintError, ForeignKeyConstraintError } from "sequelize";
 
 @Injectable()
 export class ErrorsInterceptor implements NestInterceptor {
