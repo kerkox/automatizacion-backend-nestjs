@@ -17,7 +17,6 @@ export class OrdenProduccionService {
   attributes: any
   constructor(@InjectModel(OrdenProduccion)
   private ordenProduccionModel: typeof OrdenProduccion, 
-  private sequelize: Sequelize,
   private recetaService: RecetaService,
   private presentacionProductoService: PresentacionProductoService) {
     this.inicilizarCampos();
@@ -70,6 +69,7 @@ export class OrdenProduccionService {
   }
 
   async generarOrdenProduccion(ordenPedido: OrdenPedido, transaction:Transaction): Promise<OrdenProduccion> {
+    
     let ordenProduccion = new OrdenProduccion();
     
     let presenteacionProducto = await this.presentacionProductoService.findOne(ordenPedido.presentacion_producto_id)
@@ -83,10 +83,8 @@ export class OrdenProduccionService {
     // console.log("receta encontrada: ",receta)
     // console.log("===================================")
     if (!receta) {
-      let tipo = ordenPedido.tipo_producto.descripcion;
-      let referencia = ordenPedido.referencia_producto.descripcion
       throw new HttpException(
-        `No existe una receta para esta referencia: "${referencia}" y tipo: "${tipo}" de producto`,
+        `No existe una receta para la referencia y tipo de producto seleccionado`,
         HttpStatus.CONFLICT
         )
     }
