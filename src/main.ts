@@ -1,3 +1,4 @@
+import { AllExceptionFilterFilter } from './filters/all-exception-filter.filter';
 import { ErrorsInterceptor } from './interceptors/errors.interceptor';
 import { TransformInterceptor } from './interceptors/transform.interceptor';
 import { NestFactory } from '@nestjs/core';
@@ -12,7 +13,8 @@ async function bootstrap() {
   app.enableCors();
   app.useGlobalPipes(new ValidationPipe());
   app.useGlobalInterceptors(new TransformInterceptor())
-  app.useGlobalInterceptors(new ErrorsInterceptor())
+  // app.useGlobalInterceptors(new ErrorsInterceptor())
+  app.useGlobalFilters(new AllExceptionFilterFilter());
   await app.listen(PORT);
 }
 bootstrap();

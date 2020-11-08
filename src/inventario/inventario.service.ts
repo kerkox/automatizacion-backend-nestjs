@@ -1,3 +1,4 @@
+import { ForeignKeyConstraintError } from 'sequelize';
 import { MateriaPrima } from './../materia-prima/model/materia-prima.model';
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
@@ -12,8 +13,8 @@ export class InventarioService {
   constructor(
     @InjectModel(Inventario)
     private inventarioModel: typeof Inventario) {
-      this.inicilizarCampos();
-     }
+    this.inicilizarCampos();
+  }
 
   inicilizarCampos() {
     this.cargarAttributes()
@@ -23,7 +24,7 @@ export class InventarioService {
   cargarAttributes() {
     this.attributes = [
       'id',
-      'cantidad',      
+      'cantidad',
     ]
   }
 
@@ -31,7 +32,7 @@ export class InventarioService {
     this.includes = [
       {
         model: MateriaPrima,
-        attributes: ['id', 'descripcion'],        
+        attributes: ['id', 'descripcion'],
       }
     ]
   }
@@ -42,18 +43,26 @@ export class InventarioService {
         materia_prima_id: createInventarioDto.materia_prima_id
       }
     })
-    if(inventarioDB) {
-      return await this.updateInvetario(inventarioDB,createInventarioDto);
+    if (inventarioDB) {
+      return await this.updateInvetario(inventarioDB, createInventarioDto);
     } else {
-      const inventario = new Inventario();
-      inventario.materia_prima_id = createInventarioDto.materia_prima_id;
-      inventario.cantidad = createInventarioDto.cantidad;
-      await inventario.save();
-      return this.findOne(inventario.id)
+
+      try {
+        const inventario = new Inventario();
+        inventario.materia_prima_id = createInventarioDto.materia_prima_id;
+        inventario.cantidad = createInventarioDto.cantidad;
+        await inventario.save();
+        return this.findOne(inventario.id)
+      } catch (err) {
+        if (err instanceof ForeignKeyConstraintError){
+          throw new BadRequestException(`No existe el ID del siguiente campo: ${err.fields}`)
+        }
+        throw err;
+      }
     }
   }
 
-  async updateInvetario(inventario: Inventario,createInventarioDto: CreateInventarioDto) {
+  async updateInvetario(inventario: Inventario, createInventarioDto: CreateInventarioDto) {
     inventario.cantidad = createInventarioDto.cantidad;
     await inventario.save();
     return this.findOne(inventario.id)
@@ -70,7 +79,7 @@ export class InventarioService {
     return this.inventarioModel.findByPk(id, {
       include: this.includes,
       attributes: this.attributes
-    });
+    });    
   }
 
   async update(id: string, createInventarioDto: CreateInventarioDto) {
