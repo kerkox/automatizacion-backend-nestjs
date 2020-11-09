@@ -1,6 +1,6 @@
 import { UserLoginResponseDto } from './dto/user-login-response.dto';
 import { config } from './../config/config';
-import { Body, Controller, Get, Param, Post, Put, Delete } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Put, Delete, HttpCode } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { User } from './model/user.model';
@@ -21,6 +21,7 @@ export class UserController {
   }
 
   @Post('login')
+  @HttpCode(200)
   async login(@Body() userLoginRequestDto: UserLoginRequestDto): Promise<UserLoginResponseDto> {
     return this.userService.login(userLoginRequestDto);
   }
