@@ -1,10 +1,11 @@
 import { UserLoginResponseDto } from './dto/user-login-response.dto';
 import { config } from './../config/config';
-import { Body, Controller, Get, Param, Post, Put, Delete, HttpCode } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Put, Delete, HttpCode, Req, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { User } from './model/user.model';
 import { UserLoginRequestDto } from './dto/user-login-request.dto';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller(config.api.ROUTE_BASE + 'user')
 export class UserController {
@@ -25,6 +26,14 @@ export class UserController {
   async login(@Body() userLoginRequestDto: UserLoginRequestDto): Promise<UserLoginResponseDto> {
     return this.userService.login(userLoginRequestDto);
   }
+
+  @Get('login/renew')
+  @HttpCode(200)
+  @UseGuards(AuthGuard('jwt'))
+  async renew(@Req() request): Promise<UserLoginResponseDto> {
+    return this.userService.renewToken(request.user);
+  }
+
 
   @Get(':id')
   findOne(@Param('id') id: string): Promise<User> {

@@ -112,6 +112,12 @@ export class UserService {
     return pass;
   }
 
+
+  async renewToken(user: User){
+    const token = await this.signToken(user);
+    return new UserLoginResponseDto(user, token);
+  }
+
   
   async signToken(user: User) {
     const payload: JwtPayload = {
