@@ -1,3 +1,4 @@
+import { EstadoOrden } from './../shared/enum/estado-orden';
 import { PresentacionProducto } from './../presentacion-producto/model/presentacion-producto.model';
 import { TipoProducto } from './../tipo-producto/model/tipo-producto.model';
 import { ReferenciaProducto } from './../referencia-producto/model/referencia-producto.model';
@@ -10,7 +11,7 @@ import { Injectable, NotFoundException, HttpException, HttpStatus } from '@nestj
 import { InjectModel } from '@nestjs/sequelize';
 import { Transaction } from 'sequelize';
 import { AprobarOrdenProduccionDto } from './dto/aprobar-orden-produccion.dto';
-import { EstadoOrden } from 'src/shared/enum/estado-orden';
+
 
 @Injectable()
 export class OrdenProduccionService {
@@ -18,9 +19,9 @@ export class OrdenProduccionService {
   includes: any
   attributes: any
   constructor(@InjectModel(OrdenProduccion)
-  private ordenProduccionModel: typeof OrdenProduccion, 
-  private recetaService: RecetaService,
-  private presentacionProductoService: PresentacionProductoService) {
+  private ordenProduccionModel: typeof OrdenProduccion,
+    private recetaService: RecetaService,
+    private presentacionProductoService: PresentacionProductoService) {
     this.inicilizarCampos();
   }
 
@@ -46,7 +47,7 @@ export class OrdenProduccionService {
     this.includes = [
       {
         model: OrdenPedido,
-        attributes: ['id', 'cliente','cantidad','estado', 'created_at'],
+        attributes: ['id', 'cliente', 'cantidad', 'estado', 'created_at'],
         include: [
           {
             model: Prioridad,
@@ -64,25 +65,49 @@ export class OrdenProduccionService {
             model: PresentacionProducto,
             attributes: ['id', 'descripcion', 'cantidad']
           },
-          // {
-          //   model: OrdenPedido,
-          //   attributes: ['id', 'cantidad', '' ],
-          //   include: [
-              
-          //   ]
-          // }      
         ]
-        
-      },      
+
+      },
     ]
   }
 
-  async generarOrdenProduccion(ordenPedido: OrdenPedido, transaction:Transaction): Promise<OrdenProduccion> {
-    
+  includesByEstadoOrden(estadoOrden: EstadoOrden) {
+    return [
+      {
+        model: OrdenPedido,
+        attributes: ['id', 'cliente', 'cantidad', 'estado', 'created_at'],
+        include: [
+          {
+            model: Prioridad,
+            attributes: ['id', 'descripcion', 'nivel']
+          },
+          {
+            model: ReferenciaProducto,
+            attributes: ['id', 'descripcion']
+          },
+          {
+            model: TipoProducto,
+            attributes: ['id', 'descripcion']
+          },
+          {
+            model: PresentacionProducto,
+            attributes: ['id', 'descripcion', 'cantidad']
+          },
+        ],
+        where: {
+          estado: estadoOrden
+        }
+
+      },
+    ]
+  }
+
+  async generarOrdenProduccion(ordenPedido: OrdenPedido, transaction: Transaction): Promise<OrdenProduccion> {
+
     const ordenProduccion = new OrdenProduccion();
-    
+
     const presenteacionProducto = await this.presentacionProductoService.findOne(ordenPedido.presentacion_producto_id)
-    
+
     // Obtener los militos totales presentacion (ml) x cantidad de productos
     const mililitros_totales = presenteacionProducto.cantidad * ordenPedido.cantidad
 
@@ -95,7 +120,7 @@ export class OrdenProduccionService {
       throw new HttpException(
         `No existe una receta para la referencia y tipo de producto seleccionado`,
         HttpStatus.CONFLICT
-        )
+      )
     }
     const toneladas_totales = receta.densidad * mililitros_totales
 
@@ -103,14 +128,21 @@ export class OrdenProduccionService {
     ordenProduccion.lotes_ejecutados = 0;
     ordenProduccion.orden_pedido_id = ordenPedido.id
     ordenProduccion.cantidad = toneladas_totales;
-    return await ordenProduccion.save({ transaction: transaction});
+    return await ordenProduccion.save({ transaction: transaction });
   }
 
- 
+
   async findAll(): Promise<OrdenProduccion[]> {
     return await this.ordenProduccionModel.findAll({
       attributes: this.attributes,
       include: this.includes
+    });
+  }
+
+  async findAllByEstado(estadoOrden: EstadoOrden) {
+    return this.ordenProduccionModel.findAll({
+      attributes: this.attributes,
+      include: this.includesByEstadoOrden(estadoOrden),      
     });
   }
 
@@ -134,7 +166,7 @@ export class OrdenProduccionService {
     })
   }
 
-  async update(id: number){    
+  async update(id: number) {
     return id;
   }
 
@@ -147,9 +179,9 @@ export class OrdenProduccionService {
     }
   }
 
-  async aprobarOrdenProduccion(aprobarOrdenProduccionDto:AprobarOrdenProduccionDto[]): Promise<OrdenProduccion[]> {
+  async aprobarOrdenProduccion(aprobarOrdenProduccionDto: AprobarOrdenProduccionDto[]): Promise<OrdenProduccion[]> {
     // Se debe de cambiar el estado de las ordenes de produccion segun su estado
-    const ids = aprobarOrdenProduccionDto.reduce((acc,cu) => acc.push(cu.id) && acc, []);
+    const ids = aprobarOrdenProduccionDto.reduce((acc, cu) => acc.push(cu.id) && acc, []);
     const ordenes = await this.ordenProduccionModel.findAll({
       where: {
         id: ids
@@ -163,7 +195,7 @@ export class OrdenProduccionService {
     })
 
     // this.ordenProduccionModel.update(ordenes,{
-      
+
     // })
 
     return ordenes;

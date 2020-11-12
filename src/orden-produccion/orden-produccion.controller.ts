@@ -1,3 +1,4 @@
+import { EstadoOrden } from './../shared/enum/estado-orden';
 import { AprobarOrdenProduccionDto } from './dto/aprobar-orden-produccion.dto';
 import { OrdenProduccionService } from './orden-produccion.service';
 import { config } from './../config/config';
@@ -11,6 +12,11 @@ export class OrdenProduccionController {
   @Get()
   async findAll(): Promise<OrdenProduccion[]> {
     return this.ordenProduccionService.findAll();
+  }
+  
+  @Get('/estado/:estado')
+  async findAllByEstado(@Param('estado') estado: EstadoOrden): Promise<OrdenProduccion[]> {
+    return this.ordenProduccionService.findAllByEstado(estado);
   }
 
   @Get(':id')

@@ -1,3 +1,4 @@
+import { EstadoOrden } from './../shared/enum/estado-orden';
 import { OrdenProduccionService } from './../orden-produccion/orden-produccion.service';
 import { PresentacionProducto } from './../presentacion-producto/model/presentacion-producto.model';
 import { TipoProducto } from './../tipo-producto/model/tipo-producto.model';
@@ -8,6 +9,7 @@ import { CreateOrdenPedidoDto } from './dto/create-orden-pedido.dto';
 import { OrdenPedido } from './model/orden-pedido.model';
 import { ReferenciaProducto } from './../referencia-producto/model/referencia-producto.model';
 import { Sequelize } from 'sequelize';
+import { where } from 'sequelize';
 
 @Injectable()
 export class OrdenPedidoService {
@@ -74,10 +76,10 @@ export class OrdenPedidoService {
 
   async create(createOrdenPedidoDto: CreateOrdenPedidoDto): Promise<OrdenPedido> {
     try {
-      let ordenPedido = await this.sequelize.transaction(async t => {
+      const ordenPedido = await this.sequelize.transaction(async t => {
         let ordenPedido = new OrdenPedido();
         ordenPedido = this.loadDataFromDto(ordenPedido, createOrdenPedidoDto);
-        let ordenPedidoDB = await ordenPedido.save({
+        const ordenPedidoDB = await ordenPedido.save({
           transaction: t
         });
         
@@ -106,7 +108,7 @@ export class OrdenPedidoService {
   }
 
   async findOne(id: string): Promise<OrdenPedido> {
-    let ordenPedido = await this.ordenPedidoModel.findByPk(id,{
+    const ordenPedido = await this.ordenPedidoModel.findByPk(id,{
       attributes: this.attributes,
       include: this.includes
     });
