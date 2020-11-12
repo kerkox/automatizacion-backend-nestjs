@@ -1,6 +1,7 @@
+import { AprobarOrdenProduccionDto } from './dto/aprobar-orden-produccion.dto';
 import { OrdenProduccionService } from './orden-produccion.service';
 import { config } from './../config/config';
-import { Body, Controller, Get, Param, Post, Put, Delete } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Put, Delete, HttpCode } from '@nestjs/common';
 import { OrdenProduccion } from './model/orden-produccion.model';
 
 @Controller(config.api.ROUTE_BASE + 'orden-produccion')
@@ -15,6 +16,12 @@ export class OrdenProduccionController {
   @Get(':id')
   findOne(@Param('id') id: string): Promise<OrdenProduccion> {
     return this.ordenProduccionService.findOne(id);
+  }
+
+  @Post('/aprobar')
+  @HttpCode(200)
+  async aprobarOrdenProduccion(@Body() aprobarOrdenProduccionDto:AprobarOrdenProduccionDto[] ) {
+    return this.ordenProduccionService.aprobarOrdenProduccion(aprobarOrdenProduccionDto);
   }
 
   // @Put(':id')

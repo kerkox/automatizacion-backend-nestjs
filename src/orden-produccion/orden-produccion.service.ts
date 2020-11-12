@@ -6,9 +6,11 @@ import { PresentacionProductoService } from './../presentacion-producto/presenta
 import { RecetaService } from './../receta/receta.service';
 import { OrdenPedido } from './../orden-pedido/model/orden-pedido.model';
 import { OrdenProduccion } from './model/orden-produccion.model';
-import { BadRequestException, Injectable, NotFoundException, HttpException, HttpStatus } from '@nestjs/common';
+import { Injectable, NotFoundException, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { Sequelize, Transaction } from 'sequelize';
+import { Transaction } from 'sequelize';
+import { AprobarOrdenProduccionDto } from './dto/aprobar-orden-produccion.dto';
+import { EstadoOrden } from 'src/shared/enum/estado-orden';
 
 @Injectable()
 export class OrdenProduccionService {
@@ -48,7 +50,7 @@ export class OrdenProduccionService {
         include: [
           {
             model: Prioridad,
-            attributes: ['id', 'descripcion']
+            attributes: ['id', 'descripcion', 'nivel']
           },
           {
             model: ReferenciaProducto,
@@ -61,7 +63,14 @@ export class OrdenProduccionService {
           {
             model: PresentacionProducto,
             attributes: ['id', 'descripcion', 'cantidad']
-          }      
+          },
+          // {
+          //   model: OrdenPedido,
+          //   attributes: ['id', 'cantidad', '' ],
+          //   include: [
+              
+          //   ]
+          // }      
         ]
         
       },      
@@ -70,15 +79,15 @@ export class OrdenProduccionService {
 
   async generarOrdenProduccion(ordenPedido: OrdenPedido, transaction:Transaction): Promise<OrdenProduccion> {
     
-    let ordenProduccion = new OrdenProduccion();
+    const ordenProduccion = new OrdenProduccion();
     
-    let presenteacionProducto = await this.presentacionProductoService.findOne(ordenPedido.presentacion_producto_id)
+    const presenteacionProducto = await this.presentacionProductoService.findOne(ordenPedido.presentacion_producto_id)
     
     // Obtener los militos totales presentacion (ml) x cantidad de productos
-    let mililitros_totales = presenteacionProducto.cantidad * ordenPedido.cantidad
+    const mililitros_totales = presenteacionProducto.cantidad * ordenPedido.cantidad
 
     // obtener las toneladas totales 
-    let receta = await this.recetaService.findOneByRefernciayTipo(ordenPedido.referencia_producto_id, ordenPedido.tipo_producto_id)
+    const receta = await this.recetaService.findOneByRefernciayTipo(ordenPedido.referencia_producto_id, ordenPedido.tipo_producto_id)
     // console.log("===================================")
     // console.log("receta encontrada: ",receta)
     // console.log("===================================")
@@ -88,7 +97,7 @@ export class OrdenProduccionService {
         HttpStatus.CONFLICT
         )
     }
-    let toneladas_totales = receta.densidad * mililitros_totales
+    const toneladas_totales = receta.densidad * mililitros_totales
 
     ordenProduccion.lotes_totales = 1;
     ordenProduccion.lotes_ejecutados = 0;
@@ -106,7 +115,7 @@ export class OrdenProduccionService {
   }
 
   async findOne(id: string): Promise<OrdenProduccion> {
-    let ordenProduccion = await this.ordenProduccionModel.findByPk(id, {
+    const ordenProduccion = await this.ordenProduccionModel.findByPk(id, {
       attributes: this.attributes,
       include: this.includes
     });
@@ -126,7 +135,7 @@ export class OrdenProduccionService {
   }
 
   async update(id: number){    
-
+    return id;
   }
 
   async delete(id: string): Promise<void> {
@@ -137,5 +146,30 @@ export class OrdenProduccionService {
       throw new NotFoundException({ error: "ID no existe", status: 404 }, "ID no existe");
     }
   }
+
+  async aprobarOrdenProduccion(aprobarOrdenProduccionDto:AprobarOrdenProduccionDto[]): Promise<OrdenProduccion[]> {
+    // Se debe de cambiar el estado de las ordenes de produccion segun su estado
+    const ids = aprobarOrdenProduccionDto.reduce((acc,cu) => acc.push(cu.id) && acc, []);
+    const ordenes = await this.ordenProduccionModel.findAll({
+      where: {
+        id: ids
+      },
+      include: this.includes
+    })
+
+    ordenes.forEach((orden) => {
+      orden.orden_pedido.estado = EstadoOrden.EN_PRODUCCION
+      orden.orden_pedido.save();
+    })
+
+    // this.ordenProduccionModel.update(ordenes,{
+      
+    // })
+
+    return ordenes;
+  }
+
+
+
 
 }
