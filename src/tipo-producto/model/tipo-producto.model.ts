@@ -1,5 +1,4 @@
 import { Receta } from './../../receta/model/receta.model';
-import { OrdenPedido } from './../../orden-pedido/model/orden-pedido.model';
 import { Column, HasMany, Model, Table } from 'sequelize-typescript';
 
 @Table({
@@ -12,9 +11,6 @@ export class TipoProducto extends Model<TipoProducto> {
   })
   descripcion: string;
 
-  @HasMany(() => OrdenPedido)
-  ordenesPedido: OrdenPedido[];
- 
   @HasMany(() => Receta)
   recetas: Receta[];
 

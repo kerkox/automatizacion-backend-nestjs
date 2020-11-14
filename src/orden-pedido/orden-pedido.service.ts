@@ -1,15 +1,16 @@
-import { EstadoOrden } from './../shared/enum/estado-orden';
+import { Receta } from './../receta/model/receta.model';
+import { MateriaPrima } from './../materia-prima/model/materia-prima.model';
+import { RecetaService } from './../receta/receta.service';
 import { OrdenProduccionService } from './../orden-produccion/orden-produccion.service';
 import { PresentacionProducto } from './../presentacion-producto/model/presentacion-producto.model';
 import { TipoProducto } from './../tipo-producto/model/tipo-producto.model';
 import { Prioridad } from './../prioridad/model/prioridad.model';
-import { BadRequestException, Injectable, NotFoundException, HttpException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { CreateOrdenPedidoDto } from './dto/create-orden-pedido.dto';
 import { OrdenPedido } from './model/orden-pedido.model';
 import { ReferenciaProducto } from './../referencia-producto/model/referencia-producto.model';
 import { Sequelize } from 'sequelize';
-import { where } from 'sequelize';
 
 @Injectable()
 export class OrdenPedidoService {
@@ -19,6 +20,7 @@ export class OrdenPedidoService {
   constructor(
     @InjectModel(OrdenPedido)
     private ordenPedidoModel: typeof OrdenPedido,
+    private recetaService: RecetaService,
     private ordenProduccionService: OrdenProduccionService,
     private sequelize: Sequelize
     ) {
@@ -49,17 +51,38 @@ export class OrdenPedidoService {
         attributes: ['id', 'descripcion']
       },
       {
-        model: ReferenciaProducto,
-        attributes: ['id', 'descripcion']
-      },
-      {
-        model: TipoProducto,
-        attributes: ['id', 'descripcion']
-      },
-      {
         model: PresentacionProducto,
         attributes: ['id', 'descripcion', 'cantidad']
-      }      
+      },
+      {
+        model: Receta,
+        attributes: [
+          'id',
+          // 'tiempo_premezclado',
+          // 'tiempo_precalentamiento',
+          // 'tiempo_mezclado',
+          // 'temperatura_precalentamiento',
+          // 'temperatura_calentamiento'
+        ],
+        include: [
+          {
+            model: ReferenciaProducto,
+            attributes: ['id', 'descripcion']
+          },
+          {
+            model: TipoProducto,
+            attributes: ['id', 'descripcion']
+          },
+          // {
+          //   model: MateriaPrima,
+          //   attributes: ['id', 'descripcion'],
+          //   through: {
+          //     attributes: ['porcentaje']
+          //   }
+          // }
+        ]
+      }
+
     ]
   }
 
@@ -67,8 +90,6 @@ export class OrdenPedidoService {
     ordenPedido.cliente = createOrdenPedidoDto.cliente || ordenPedido.cliente
     ordenPedido.cantidad = createOrdenPedidoDto.cantidad || ordenPedido.cantidad
     ordenPedido.prioridad_id = createOrdenPedidoDto.prioridad_id || ordenPedido.prioridad_id
-    ordenPedido.tipo_producto_id = createOrdenPedidoDto.tipo_producto_id || ordenPedido.tipo_producto_id
-    ordenPedido.referencia_producto_id = createOrdenPedidoDto.referencia_producto_id || ordenPedido.referencia_producto_id
     ordenPedido.presentacion_producto_id = createOrdenPedidoDto.presentacion_producto_id || ordenPedido.presentacion_producto_id
     return ordenPedido;
   }
@@ -79,12 +100,27 @@ export class OrdenPedidoService {
       const ordenPedido = await this.sequelize.transaction(async t => {
         let ordenPedido = new OrdenPedido();
         ordenPedido = this.loadDataFromDto(ordenPedido, createOrdenPedidoDto);
+        // obtener las toneladas totales 
+        const receta = await this.recetaService
+                      .findOneByRefernciayTipo(
+                        createOrdenPedidoDto.referencia_producto_id,
+                        createOrdenPedidoDto.tipo_producto_id)
+        // console.log("===================================")
+        // console.log("receta encontrada: ",receta)
+        // console.log("===================================")
+        ordenPedido.receta_id =  receta.id;
+        if (!receta) {
+          throw new HttpException(
+            `No existe una receta para la referencia y tipo de producto seleccionado`,
+            HttpStatus.CONFLICT
+          )
+        }
         const ordenPedidoDB = await ordenPedido.save({
           transaction: t
         });
         
         // Aqui se crea la Orden de Produccion con los calulos realizados
-        await this.ordenProduccionService.generarOrdenProduccion(ordenPedidoDB, t);
+        await this.ordenProduccionService.generarOrdenProduccion(ordenPedidoDB,receta, t);
 
         return ordenPedidoDB
 

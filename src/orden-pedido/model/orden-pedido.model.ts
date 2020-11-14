@@ -1,10 +1,9 @@
+import { Receta } from './../../receta/model/receta.model';
 import { OrdenProduccion } from './../../orden-produccion/model/orden-produccion.model';
 import { EstadoOrden } from './../../shared/enum/estado-orden';
 import { Prioridad } from './../../prioridad/model/prioridad.model';
 import { PresentacionProducto } from './../../presentacion-producto/model/presentacion-producto.model';
-import { TipoProducto } from './../../tipo-producto/model/tipo-producto.model';
 import { BelongsTo, Column, DataType, ForeignKey, HasOne, Model, Table } from 'sequelize-typescript';
-import { ReferenciaProducto } from './../../referencia-producto/model/referencia-producto.model';
 
 @Table({
   underscored: true,
@@ -27,35 +26,23 @@ export class OrdenPedido extends Model<OrdenPedido> {
       EstadoOrden.EN_PRODUCCION,
       EstadoOrden.TERMINADA),
     defaultValue: EstadoOrden.GENERADA,
+    allowNull:false
   })
   estado: EstadoOrden
 
-  @ForeignKey(() => ReferenciaProducto)
+  @ForeignKey(() => Receta)
   @Column({
     type: DataType.INTEGER,
-    field: 'referencia_producto_id',
+    field: 'receta_id',
     allowNull:false
   })
-  referencia_producto_id: number;
+  receta_id: number;
 
-  @BelongsTo(() => ReferenciaProducto)
-  referencia_producto: ReferenciaProducto;
-
-
-
-  @ForeignKey(() => TipoProducto)
-  @Column({
-    type: DataType.INTEGER,
-    field: 'tipo_producto_id',
-    allowNull:false
-  })
-  tipo_producto_id: number;
-
-  @BelongsTo(() => TipoProducto)
-  tipo_producto: TipoProducto
+  @BelongsTo(() => Receta)
+  receta: Receta;
 
 
-
+  
   @ForeignKey(() => PresentacionProducto)
   @Column({
     type: DataType.INTEGER,
@@ -66,8 +53,6 @@ export class OrdenPedido extends Model<OrdenPedido> {
 
   @BelongsTo(() => PresentacionProducto)
   presentacion_producto: PresentacionProducto
-
-
 
   @ForeignKey(() => Prioridad)
   @Column({

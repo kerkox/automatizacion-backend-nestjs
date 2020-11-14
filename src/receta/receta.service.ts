@@ -32,7 +32,8 @@ export class RecetaService {
       'temperatura_precalentamiento',
       'densidad',
       'createdAt',
-      'updatedAt']
+      'updatedAt'
+    ]
   }
 
   cargarIncludes() {
@@ -71,8 +72,8 @@ export class RecetaService {
   agregarMateriasPrimasReceta(receta: Receta, createRecetaDto: CreateRecetaDto, transaction: Transaction): Promise<Receta> {
     return new Promise((resolve, reject) => {
       this.removeMateriasPrimasReceta(receta, transaction)
-        .then(res => {
-          let promises = [];
+        .then(() => {
+          const promises = [];
           createRecetaDto.materias_primas.forEach(materia_prima_porcentaje => {
             // console.log("Materia prima Receta creando: ", materia_prima_porcentaje)
             promises.push(receta.$add('materias_primas', materia_prima_porcentaje.materia_prima_id, {
@@ -82,7 +83,7 @@ export class RecetaService {
               transaction: transaction
             }))
           })
-          Promise.all(promises).then(res => {
+          Promise.all(promises).then(() => {
             // console.log("retorno de recetas con materias primas agregadas: ", receta)
             resolve(receta);
           }).catch(err => {
@@ -97,10 +98,10 @@ export class RecetaService {
   removeMateriasPrimasReceta(receta: Receta, transaction: Transaction): Promise<void> {
     return new Promise((resolve, reject) => {
       if (receta.materias_primas && receta.materias_primas.length > 0) {
-        let materias_id = receta.materias_primas.map(materia => new MateriaPrima({ id: materia.id }))
+        const materias_id = receta.materias_primas.map(materia => new MateriaPrima({ id: materia.id }))
         receta.$remove('materias_primas', materias_id, {
           transaction: transaction
-        }).then(res => resolve())
+        }).then(() => resolve())
           .catch(err => reject(err))
       } else {
         resolve()
@@ -112,14 +113,14 @@ export class RecetaService {
 
   async create(createRecetaDto: CreateRecetaDto): Promise<Receta> {
     try {
-      let receta = await this.sequelize.transaction(t => {
+      const receta = await this.sequelize.transaction(t => {
         return new Promise<Receta>((resolve, reject) => {
           let receta = new Receta();
           receta = this.loadDataFromDto(receta, createRecetaDto);
           receta.save({
             transaction: t
           })
-            .then(result => {
+            .then(() => {
               // console.log("------------------------Ya se guardo la receta")
               // console.log("=================CREANDO RELACION MATERIAS PRIMAS=====================")
               this.agregarMateriasPrimasReceta(receta, createRecetaDto, t)
@@ -149,7 +150,7 @@ export class RecetaService {
   }
 
   async findOne(id: string): Promise<Receta> {
-    let receta = await this.recetaModel.findByPk(id, {
+    const receta = await this.recetaModel.findByPk(id, {
       attributes: this.attributes,
       include: this.includes
     });

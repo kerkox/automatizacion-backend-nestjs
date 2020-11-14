@@ -1,16 +1,17 @@
+import { Receta } from './../receta/model/receta.model';
 import { EstadoOrden } from './../shared/enum/estado-orden';
 import { PresentacionProducto } from './../presentacion-producto/model/presentacion-producto.model';
 import { TipoProducto } from './../tipo-producto/model/tipo-producto.model';
 import { ReferenciaProducto } from './../referencia-producto/model/referencia-producto.model';
 import { Prioridad } from './../prioridad/model/prioridad.model';
 import { PresentacionProductoService } from './../presentacion-producto/presentacion-producto.service';
-import { RecetaService } from './../receta/receta.service';
 import { OrdenPedido } from './../orden-pedido/model/orden-pedido.model';
 import { OrdenProduccion } from './model/orden-produccion.model';
-import { Injectable, NotFoundException, HttpException, HttpStatus } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Transaction } from 'sequelize';
 import { AprobarOrdenProduccionDto } from './dto/aprobar-orden-produccion.dto';
+import { MateriaPrima } from 'src/materia-prima/model/materia-prima.model';
 
 
 @Injectable()
@@ -19,8 +20,7 @@ export class OrdenProduccionService {
   includes: any
   attributes: any
   constructor(@InjectModel(OrdenProduccion)
-  private ordenProduccionModel: typeof OrdenProduccion,
-    private recetaService: RecetaService,
+  private ordenProduccionModel: typeof OrdenProduccion,    
     private presentacionProductoService: PresentacionProductoService) {
     this.inicilizarCampos();
   }
@@ -54,20 +54,41 @@ export class OrdenProduccionService {
             attributes: ['id', 'descripcion', 'nivel']
           },
           {
-            model: ReferenciaProducto,
-            attributes: ['id', 'descripcion']
-          },
-          {
-            model: TipoProducto,
-            attributes: ['id', 'descripcion']
-          },
-          {
             model: PresentacionProducto,
             attributes: ['id', 'descripcion', 'cantidad']
           },
+          {
+            model: Receta,
+            attributes: [
+              'id',
+              'tiempo_premezclado',
+              'tiempo_precalentamiento',
+              'tiempo_mezclado',
+              'temperatura_precalentamiento',
+              'temperatura_calentamiento'
+            ],
+            include: [
+              {
+                model: ReferenciaProducto,
+                attributes: ['id', 'descripcion']
+              },
+              {
+                model: TipoProducto,
+                attributes: ['id', 'descripcion']
+              },
+              {
+                model: MateriaPrima,
+                attributes: ['id', 'descripcion'],
+                through: {
+                  attributes: ['porcentaje']
+                }
+              }
+            ]
+          }
         ]
 
       },
+      
     ]
   }
 
@@ -80,19 +101,39 @@ export class OrdenProduccionService {
           {
             model: Prioridad,
             attributes: ['id', 'descripcion', 'nivel']
-          },
-          {
-            model: ReferenciaProducto,
-            attributes: ['id', 'descripcion']
-          },
-          {
-            model: TipoProducto,
-            attributes: ['id', 'descripcion']
-          },
+          },          
           {
             model: PresentacionProducto,
             attributes: ['id', 'descripcion', 'cantidad']
           },
+          {
+            model: Receta,
+            attributes: [
+              'id',
+              'tiempo_premezclado',
+              'tiempo_precalentamiento',
+              'tiempo_mezclado',
+              'temperatura_precalentamiento',
+              'temperatura_calentamiento'
+            ],
+            include: [
+              {
+                model: ReferenciaProducto,
+                attributes: ['id', 'descripcion']
+              },
+              {
+                model: TipoProducto,
+                attributes: ['id', 'descripcion']
+              },
+              {
+                model: MateriaPrima,
+                attributes: ['id', 'descripcion'],
+                through: {
+                  attributes: ['porcentaje']
+                }
+              }
+            ]
+          }
         ],
         where: {
           estado: estadoOrden
@@ -102,7 +143,7 @@ export class OrdenProduccionService {
     ]
   }
 
-  async generarOrdenProduccion(ordenPedido: OrdenPedido, transaction: Transaction): Promise<OrdenProduccion> {
+  async generarOrdenProduccion(ordenPedido: OrdenPedido, receta:Receta,transaction: Transaction): Promise<OrdenProduccion> {
 
     const ordenProduccion = new OrdenProduccion();
 
@@ -111,17 +152,7 @@ export class OrdenProduccionService {
     // Obtener los militos totales presentacion (ml) x cantidad de productos
     const mililitros_totales = presenteacionProducto.cantidad * ordenPedido.cantidad
 
-    // obtener las toneladas totales 
-    const receta = await this.recetaService.findOneByRefernciayTipo(ordenPedido.referencia_producto_id, ordenPedido.tipo_producto_id)
-    // console.log("===================================")
-    // console.log("receta encontrada: ",receta)
-    // console.log("===================================")
-    if (!receta) {
-      throw new HttpException(
-        `No existe una receta para la referencia y tipo de producto seleccionado`,
-        HttpStatus.CONFLICT
-      )
-    }
+    
     const toneladas_totales = receta.densidad * mililitros_totales
 
     ordenProduccion.lotes_totales = 1;
