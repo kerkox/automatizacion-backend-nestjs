@@ -16,7 +16,7 @@ export class AllExceptionFilterFilter<T> implements ExceptionFilter {
     response.status(status).json({
       status,
       errors: exception['errors'] || [],
-      message: exception['message'] || "Error desconocido"
+      message: exception['response']['message'] || exception['message'] || "Error desconocido"
     })
   }
 

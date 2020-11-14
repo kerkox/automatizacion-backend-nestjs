@@ -28,7 +28,7 @@ export class MateriaPrimaService {
 
   create(createMateriaPrimaDto: CreateMateriaPrimaDto): Promise<MateriaPrima> {
     const materiaPrima = new MateriaPrima();
-    materiaPrima.descripcion = createMateriaPrimaDto.descripcion;
+    materiaPrima.descripcion = createMateriaPrimaDto.descripcion.trim();
     return materiaPrima.save();
   }
 
