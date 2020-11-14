@@ -2,7 +2,7 @@ import { EstadoOrden } from './../shared/enum/estado-orden';
 import { AprobarOrdenProduccionDto } from './dto/aprobar-orden-produccion.dto';
 import { OrdenProduccionService } from './orden-produccion.service';
 import { config } from './../config/config';
-import { Body, Controller, Get, Param, Post, Put, Delete, HttpCode } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Delete, HttpCode } from '@nestjs/common';
 import { OrdenProduccion } from './model/orden-produccion.model';
 
 @Controller(config.api.ROUTE_BASE + 'orden-produccion')
