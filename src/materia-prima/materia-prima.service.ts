@@ -1,5 +1,5 @@
 import { CreateMateriaPrimaDto } from './dto/create-materia-prima.dto';
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { MateriaPrima } from './model/materia-prima.model';
 import { InjectModel } from '@nestjs/sequelize';
 

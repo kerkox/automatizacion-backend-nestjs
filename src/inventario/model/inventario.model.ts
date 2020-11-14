@@ -1,4 +1,4 @@
-import { Column, HasMany, Model, Table, DataType, Index, Unique, IsEmail, AllowNull, BelongsTo, ForeignKey } from 'sequelize-typescript';
+import { Column,  Model, Table, DataType, BelongsTo, ForeignKey, Index } from 'sequelize-typescript';
 import { MateriaPrima } from './../../materia-prima/model/materia-prima.model';
 
 @Table({
@@ -14,8 +14,11 @@ export class Inventario extends Model<Inventario> {
   cantidad: number;
 
   @ForeignKey(() => MateriaPrima)
+  @Index({
+    type:'UNIQUE'
+  })
   @Column({
-    allowNull: true,
+    allowNull: false,
     type:DataType.INTEGER,
     field: 'materia_prima_id'
   })

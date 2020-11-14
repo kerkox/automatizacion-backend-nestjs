@@ -1,5 +1,4 @@
 import { AllExceptionFilterFilter } from './filters/all-exception-filter.filter';
-import { ErrorsInterceptor } from './interceptors/errors.interceptor';
 import { TransformInterceptor } from './interceptors/transform.interceptor';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';

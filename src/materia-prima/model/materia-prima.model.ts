@@ -1,6 +1,7 @@
+import { Inventario } from './../../inventario/model/inventario.model';
 import { MateriaPrimaReceta } from './../../materia-prima-receta/model/materia-prima-receta';
 import { Receta } from './../../receta/model/receta.model';
-import { BelongsToMany, Column, Model, Table } from 'sequelize-typescript';
+import { BelongsToMany, Column, HasOne, Model, Table } from 'sequelize-typescript';
 
 @Table({
   underscored: true,
@@ -14,4 +15,7 @@ export class MateriaPrima extends Model<MateriaPrima> {
 
   @BelongsToMany(() => MateriaPrima, () => MateriaPrimaReceta, 'materia_prima_id', 'receta_id')
   recetas: Receta[]
+
+  @HasOne(() => Inventario)
+  inventario:  Inventario
 }
