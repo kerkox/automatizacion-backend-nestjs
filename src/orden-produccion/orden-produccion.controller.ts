@@ -16,7 +16,12 @@ export class OrdenProduccionController {
   
   @Get('/estado/:estado')
   async findAllByEstado(@Param('estado') estado: EstadoOrden): Promise<OrdenProduccion[]> {
-    return this.ordenProduccionService.findAllByEstado(estado);
+    return this.ordenProduccionService.findAllByEstados([estado]);
+  }
+
+  @Post('/estado')
+  async findAllByEstados(@Body() estados: EstadoOrden[]): Promise<OrdenProduccion[]> {
+    return this.ordenProduccionService.findAllByEstados(estados);
   }
 
   @Get(':id')

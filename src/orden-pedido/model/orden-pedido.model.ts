@@ -23,8 +23,11 @@ export class OrdenPedido extends Model<OrdenPedido> {
   @Column({
     type: DataType.ENUM(
       EstadoOrden.GENERADA,
+      EstadoOrden.EN_COLA,
       EstadoOrden.EN_PRODUCCION,
-      EstadoOrden.TERMINADA),
+      EstadoOrden.TERMINADA,
+      EstadoOrden.ABORTADA,
+      ),
     defaultValue: EstadoOrden.GENERADA,
     allowNull:false
   })

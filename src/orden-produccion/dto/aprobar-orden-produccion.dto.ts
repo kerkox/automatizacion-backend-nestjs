@@ -1,3 +1,5 @@
-export interface AprobarOrdenProduccionDto {
+import { IsNumber } from 'class-validator';
+export class AprobarOrdenProduccionDto {
+  @IsNumber()
   id: number
 }

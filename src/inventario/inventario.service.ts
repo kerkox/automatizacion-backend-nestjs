@@ -99,4 +99,13 @@ export class InventarioService {
       throw new NotFoundException({ error: "ID no existe", status: 404 }, "ID no existe");
     }
   }
+
+  async findByMateriaPrimaId(materia_prima_id: number): Promise<Inventario>{
+    return this.inventarioModel.findOne({
+      where: {
+        materia_prima_id
+      }
+    })
+  }
+
 }

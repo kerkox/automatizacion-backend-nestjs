@@ -1,5 +1,6 @@
 import { OrdenPedido } from './../../orden-pedido/model/orden-pedido.model';
 import { BelongsTo, Column, DataType, ForeignKey, Model, Table, AllowNull } from 'sequelize-typescript';
+import { DataTypes } from 'sequelize/types';
 
 @Table({
   underscored: true,
@@ -48,5 +49,11 @@ export class OrdenProduccion extends Model<OrdenProduccion> {
 
   @BelongsTo(() => OrdenPedido)
   orden_pedido: OrdenPedido;
+
+  @Column({
+    allowNull:true,
+    type:DataType.STRING
+  })
+  observaciones: string
 
 }

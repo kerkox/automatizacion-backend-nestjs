@@ -1,3 +1,4 @@
+import { InventarioService } from './../inventario/inventario.service';
 import { Receta } from './../receta/model/receta.model';
 import { EstadoOrden } from './../shared/enum/estado-orden';
 import { PresentacionProducto } from './../presentacion-producto/model/presentacion-producto.model';
@@ -21,7 +22,8 @@ export class OrdenProduccionService {
   attributes: any
   constructor(@InjectModel(OrdenProduccion)
   private ordenProduccionModel: typeof OrdenProduccion,    
-    private presentacionProductoService: PresentacionProductoService) {
+    private presentacionProductoService: PresentacionProductoService,
+    private inventarioService: InventarioService) {
     this.inicilizarCampos();
   }
 
@@ -92,7 +94,7 @@ export class OrdenProduccionService {
     ]
   }
 
-  includesByEstadoOrden(estadoOrden: EstadoOrden) {
+  includesByEstadoOrden(estadosOrden: EstadoOrden[]) {
     return [
       {
         model: OrdenPedido,
@@ -136,7 +138,7 @@ export class OrdenProduccionService {
           }
         ],
         where: {
-          estado: estadoOrden
+          estado: estadosOrden
         }
 
       },
@@ -170,10 +172,10 @@ export class OrdenProduccionService {
     });
   }
 
-  async findAllByEstado(estadoOrden: EstadoOrden) {
+  async findAllByEstados(estadosOrden: EstadoOrden[]) {
     return this.ordenProduccionModel.findAll({
       attributes: this.attributes,
-      include: this.includesByEstadoOrden(estadoOrden),      
+      include: this.includesByEstadoOrden(estadosOrden),      
     });
   }
 
@@ -221,8 +223,7 @@ export class OrdenProduccionService {
     })
 
     ordenes.forEach((orden) => {
-      orden.orden_pedido.estado = EstadoOrden.EN_PRODUCCION
-      orden.orden_pedido.save();
+      this.aprobarValidarOrden(orden)
     })
 
     // this.ordenProduccionModel.update(ordenes,{
@@ -230,6 +231,39 @@ export class OrdenProduccionService {
     // })
 
     return ordenes;
+  }
+
+
+  private async aprobarValidarOrden(orden: OrdenProduccion) {
+    // Se cambia el estado para aprobada EN COLA
+    orden.orden_pedido.estado = EstadoOrden.EN_COLA
+    orden.orden_pedido.save();
+
+  }
+
+  private async validarDisponibilidadMateriasPrimas(orden: OrdenProduccion) {
+    // Se usa el inventario para validar si hay disponible
+    orden.orden_pedido.receta.materias_primas.forEach(async materia_prima => {
+      const inventario_materia = await this.inventarioService.findByMateriaPrimaId(materia_prima.id)
+      if(inventario_materia.cantidad >= orden.cantidad) {
+        // esto quiere decir que si hay disponibilidad 
+      } else {
+        // en caso que no exista la cantidad disponible se debe de marcar cual es la que no hay disponible 
+      }
+
+    })
+  }
+
+
+  async ejecutarOrdenProduccion(aprobarOrdenProduccionDto: AprobarOrdenProduccionDto){
+    // aqui se ejecuta solamente una orden de produccion
+    const orden = await this.ordenProduccionModel.findByPk(aprobarOrdenProduccionDto.id)
+    // 1. Luego se va a validar si puede o no arrancar,
+    // 1.1 Se intenta iniciar la primera con mas prioridad segun los criteros de importancia
+    
+    // 1.2 Se valida primero que tengan disponibilidad de materias primas
+    this.validarDisponibilidadMateriasPrimas(orden)
+
   }
 
 
