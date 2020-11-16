@@ -1,6 +1,5 @@
 import { OrdenPedido } from './../../orden-pedido/model/orden-pedido.model';
-import { BelongsTo, Column, DataType, ForeignKey, Model, Table, AllowNull } from 'sequelize-typescript';
-import { DataTypes } from 'sequelize/types';
+import { BelongsTo, Column, DataType, ForeignKey, Model, Table } from 'sequelize-typescript';
 
 @Table({
   underscored: true,
