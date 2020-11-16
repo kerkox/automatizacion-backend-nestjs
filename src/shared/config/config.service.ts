@@ -14,4 +14,13 @@ export class ConfigService {
   get tokenExpires() {
     return config.TOKEN_EXPIRES
   }
+
+  get INVENTARIO_ENABLE() {
+    return config.INVENTARIO_VALUE_ENABLE
+    
+  }
+
+  get INVENTARIO_VALUE_DEFAULT() {
+    return Number(config.INVENTARIO_VALUE_DEFAULT)
+  }
 }

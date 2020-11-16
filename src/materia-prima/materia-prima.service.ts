@@ -1,3 +1,5 @@
+import { ConfigService } from './../shared/config/config.service';
+import { InventarioService } from './../inventario/inventario.service';
 import { CreateMateriaPrimaDto } from './dto/create-materia-prima.dto';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { MateriaPrima } from './model/materia-prima.model';
@@ -10,7 +12,9 @@ export class MateriaPrimaService {
   attributes: any
   constructor(
     @InjectModel(MateriaPrima) 
-    private materiaPrimaModel: typeof MateriaPrima){
+    private materiaPrimaModel: typeof MateriaPrima,
+    private inventarioService: InventarioService,
+    private configService:ConfigService){
       this.inicilizarCampos()
     }
 
@@ -26,10 +30,19 @@ export class MateriaPrimaService {
       ]
   }
 
-  create(createMateriaPrimaDto: CreateMateriaPrimaDto): Promise<MateriaPrima> {
+  async create(createMateriaPrimaDto: CreateMateriaPrimaDto): Promise<MateriaPrima> {
     const materiaPrima = new MateriaPrima();
     materiaPrima.descripcion = createMateriaPrimaDto.descripcion.trim();
-    return materiaPrima.save();
+    const materiaPrimaDB = await materiaPrima.save();
+    if (this.configService.INVENTARIO_ENABLE){
+      const createInventarioDto = {
+        materia_prima_id: materiaPrimaDB.id,
+        cantidad: this.configService.INVENTARIO_VALUE_DEFAULT
+      }
+      await this.inventarioService.create(createInventarioDto);
+    } 
+    return materiaPrimaDB
+    
   }
 
   async findAll(): Promise<MateriaPrima[]> {

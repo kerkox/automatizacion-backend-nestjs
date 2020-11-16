@@ -38,7 +38,7 @@ export class InventarioService {
   }
 
   async create(createInventarioDto: CreateInventarioDto): Promise<Inventario> {
-    let inventarioDB = await this.inventarioModel.findOne({
+    const inventarioDB = await this.inventarioModel.findOne({
       where: {
         materia_prima_id: createInventarioDto.materia_prima_id
       }

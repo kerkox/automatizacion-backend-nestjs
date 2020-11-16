@@ -7,6 +7,7 @@ import { InventarioController } from './inventario.controller';
 @Module({
   imports: [SequelizeModule.forFeature([Inventario])],
   providers: [InventarioService],
-  controllers: [InventarioController]
+  controllers: [InventarioController],
+  exports:[InventarioService]
 })
 export class InventarioModule {}
