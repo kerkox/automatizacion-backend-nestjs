@@ -35,6 +35,7 @@ export class OrdenProduccionService {
   cargarAttributes() {
     this.attributes = [
       'id',
+      'observaciones',
       'cantidad',
       'fecha_inicio',
       'fecha_terminado',
@@ -225,7 +226,9 @@ export class OrdenProduccionService {
     ordenes.forEach((orden) => {
       this.aprobarValidarOrden(orden)
     })
-
+    
+    await this.ejecutarOrdenProduccion({id:ordenes[0].id})
+    
     // this.ordenProduccionModel.update(ordenes,{
 
     // })
@@ -241,28 +244,71 @@ export class OrdenProduccionService {
 
   }
 
-  private async validarDisponibilidadMateriasPrimas(orden: OrdenProduccion) {
+  private async validarDisponibilidadMateriasPrimas(orden: OrdenProduccion): Promise<boolean> {
     // Se usa el inventario para validar si hay disponible
-    orden.orden_pedido.receta.materias_primas.forEach(async materia_prima => {
-      const inventario_materia = await this.inventarioService.findByMateriaPrimaId(materia_prima.id)
-      if(inventario_materia.cantidad >= orden.cantidad) {
-        // esto quiere decir que si hay disponibilidad 
-      } else {
-        // en caso que no exista la cantidad disponible se debe de marcar cual es la que no hay disponible 
-      }
-
-    })
+    const materias_primas = orden.orden_pedido.receta.materias_primas;
+    const materias_primas_ids = materias_primas.map(materia_prima => materia_prima.id)
+    const materias_cantidad = {}
+    for (let x = 0; x < materias_primas.length; x++){
+      materias_cantidad[materias_primas[x].id] = (materias_primas[x]['MateriaPrimaReceta'].porcentaje / 100) * orden.cantidad
+    }
+    const inventarios_materia = await this.inventarioService.findByMateriasPrimasIds(materias_primas_ids)
+    let disponible = true
+    disponible = inventarios_materia.every(inventario => (inventario.cantidad < materias_cantidad[inventario.materia_prima_id])) 
+    
+    if(disponible) {
+      inventarios_materia.forEach(inventario => {
+        inventario.cantidad -= materias_cantidad[inventario.materia_prima_id] 
+        inventario.save()
+      })
+    } 
+    return disponible;
+    
   }
 
+  private async isEnProduccion(): Promise<boolean> {
+    this.showMessage("Se va a validar si hay alguna orden en estado EN PRODUCCION")
+    const orden_produccion = await this.ordenProduccionModel.findOne({
+      include: [{
+        model: OrdenPedido,
+        attributes: ['id', 'cliente', 'cantidad', 'estado', 'created_at'],
+        where: {
+          estado: EstadoOrden.EN_PRODUCCION
+        }
+      }]
+    })
+    this.showMessage(orden_produccion)
+    this.showMessage(orden_produccion != null)
+    return orden_produccion != null
+  }
+  private showMessage(message:any) {
+    console.log("=========================================")
+    console.log(message)
+    console.log("=========================================")
+  }
 
   async ejecutarOrdenProduccion(aprobarOrdenProduccionDto: AprobarOrdenProduccionDto){
     // aqui se ejecuta solamente una orden de produccion
-    const orden = await this.ordenProduccionModel.findByPk(aprobarOrdenProduccionDto.id)
     // 1. Luego se va a validar si puede o no arrancar,
-    // 1.1 Se intenta iniciar la primera con mas prioridad segun los criteros de importancia
+    this.showMessage("Se va a ejecutar la Orden de produccion:")
+    if (await this.isEnProduccion()){
+      this.showMessage("Existe una en produccion")
+      return false;
+    } 
+    this.showMessage("Continua para validar disponibilidad")
+    const orden = await this.ordenProduccionModel.findByPk(aprobarOrdenProduccionDto.id, {
+      include: this.includes
+    })
     
-    // 1.2 Se valida primero que tengan disponibilidad de materias primas
-    this.validarDisponibilidadMateriasPrimas(orden)
+    // 2 Se valida primero que tengan disponibilidad de materias primas y se afecta el inventario si existe disponibilidad
+    if( await this.validarDisponibilidadMateriasPrimas(orden)) {
+      orden.orden_pedido.estado = EstadoOrden.EN_PRODUCCION
+      orden.orden_pedido.save()
+    } else {
+      console.log("NO DISPONIBILIDAD ###########################")
+      orden.observaciones = "NO hay suficiente materias Primas para iniciar"
+      await orden.save();
+    }
 
   }
 

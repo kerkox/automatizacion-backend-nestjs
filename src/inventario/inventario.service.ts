@@ -1,4 +1,4 @@
-import { ForeignKeyConstraintError } from 'sequelize';
+import { ForeignKeyConstraintError, Op } from 'sequelize';
 import { MateriaPrima } from './../materia-prima/model/materia-prima.model';
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
@@ -105,6 +105,17 @@ export class InventarioService {
       where: {
         materia_prima_id
       }
+    })
+  }
+
+  async findByMateriasPrimasIds(materias_primas_ids: number[]): Promise<Inventario[]> {
+    return await this.inventarioModel.findAll({
+      where: {
+        materia_prima_id:{
+          [Op.or]: materias_primas_ids
+        } 
+      },
+      include:this.includes
     })
   }
 

@@ -20,6 +20,7 @@ export class OrdenProduccionController {
   }
 
   @Post('/estado')
+  @HttpCode(200)
   async findAllByEstados(@Body() estados: EstadoOrden[]): Promise<OrdenProduccion[]> {
     return this.ordenProduccionService.findAllByEstados(estados);
   }
