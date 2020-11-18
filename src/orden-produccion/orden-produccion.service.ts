@@ -8,7 +8,7 @@ import { Prioridad } from './../prioridad/model/prioridad.model';
 import { PresentacionProductoService } from './../presentacion-producto/presentacion-producto.service';
 import { OrdenPedido } from './../orden-pedido/model/orden-pedido.model';
 import { OrdenProduccion } from './model/orden-produccion.model';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Transaction } from 'sequelize';
 import { AprobarOrdenProduccionDto } from './dto/aprobar-orden-produccion.dto';
@@ -226,8 +226,11 @@ export class OrdenProduccionService {
     ordenes.forEach((orden) => {
       this.aprobarValidarOrden(orden)
     })
-    
-    await this.ejecutarOrdenProduccion({id:ordenes[0].id})
+    try{
+      await this.ejecutarOrdenProduccion({id:ordenes[0].id})
+    }catch(err ) {
+      this.showMessage("No se pudo iniciar la orden de produccion")
+    }
     
     // this.ordenProduccionModel.update(ordenes,{
 
@@ -252,9 +255,13 @@ export class OrdenProduccionService {
     for (let x = 0; x < materias_primas.length; x++){
       materias_cantidad[materias_primas[x].id] = (materias_primas[x]['MateriaPrimaReceta'].porcentaje / 100) * orden.cantidad
     }
+    this.showMessage("Cantidad Materias Primas")
+    this.showMessage(materias_cantidad)
     const inventarios_materia = await this.inventarioService.findByMateriasPrimasIds(materias_primas_ids)
+    this.showMessage("Inventario Materias Primas Disponible")
+    this.showMessage(inventarios_materia)
     let disponible = true
-    disponible = inventarios_materia.every(inventario => (inventario.cantidad < materias_cantidad[inventario.materia_prima_id])) 
+    disponible = inventarios_materia.every(inventario => (inventario.cantidad >= materias_cantidad[inventario.materia_prima_id])) 
     
     if(disponible) {
       inventarios_materia.forEach(inventario => {
@@ -293,7 +300,7 @@ export class OrdenProduccionService {
     this.showMessage("Se va a ejecutar la Orden de produccion:")
     if (await this.isEnProduccion()){
       this.showMessage("Existe una en produccion")
-      return false;
+      throw new ConflictException("Existe actualmente una orden en produccion");      
     } 
     this.showMessage("Continua para validar disponibilidad")
     const orden = await this.ordenProduccionModel.findByPk(aprobarOrdenProduccionDto.id, {
@@ -303,12 +310,17 @@ export class OrdenProduccionService {
     // 2 Se valida primero que tengan disponibilidad de materias primas y se afecta el inventario si existe disponibilidad
     if( await this.validarDisponibilidadMateriasPrimas(orden)) {
       orden.orden_pedido.estado = EstadoOrden.EN_PRODUCCION
-      orden.orden_pedido.save()
+      orden.observaciones = null;
+      await orden.orden_pedido.save()
+      await orden.save();
     } else {
       console.log("NO DISPONIBILIDAD ###########################")
       orden.observaciones = "NO hay suficiente materias Primas para iniciar"
       await orden.save();
+      throw new ConflictException("NO hay suficiente materias Primas para iniciar")
     }
+
+    return orden;
 
   }
 

@@ -36,6 +36,12 @@ export class OrdenProduccionController {
     return this.ordenProduccionService.aprobarOrdenProduccion(aprobarOrdenProduccionDto);
   }
 
+  @Post('/ejecutar')
+  @HttpCode(200)
+  async ejecutarOrdenProduccion(@Body() aprobarOrdenProduccionDto:AprobarOrdenProduccionDto) {
+    return this.ordenProduccionService.ejecutarOrdenProduccion(aprobarOrdenProduccionDto);
+  }
+
   // @Put(':id')
   // update(@Param('id') id: string, @Body() updateOrdenProduccionDto: CreateOrdenProduccionDto) {
   //   return this.ordenProduccionService.update(id, updateOrdenProduccionDto)
