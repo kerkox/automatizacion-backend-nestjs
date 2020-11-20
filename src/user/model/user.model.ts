@@ -32,7 +32,7 @@ export class User extends Model<User> {
 
   @Column({
     allowNull: false,
-    type: DataType.ENUM(ROLE.ADMINISTRATIVO,ROLE.INGENIERO_QUIMICO)
+    type: DataType.ENUM(ROLE.ADMINISTRATIVO,ROLE.INGENIERO_QUIMICO, ROLE.OPERARIO, ROLE.ADMIN)
   })
   role: ROLE
 
