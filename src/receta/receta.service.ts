@@ -2,10 +2,10 @@ import { ReferenciaProducto } from './../referencia-producto/model/referencia-pr
 import { MateriaPrima } from './../materia-prima/model/materia-prima.model';
 import { TipoProducto } from './../tipo-producto/model/tipo-producto.model';
 import { Receta } from './model/receta.model';
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { CreateRecetaDto } from './dto/create-receta.dto';
-import { Sequelize, Transaction } from 'sequelize';
+import { Sequelize, Transaction, ForeignKeyConstraintError } from 'sequelize';
 
 @Injectable()
 export class RecetaService {
@@ -201,7 +201,14 @@ export class RecetaService {
   async delete(id: string): Promise<void> {
     const receta = await this.findOne(id);
     if (receta) {
-      await receta.destroy();
+      try {
+        await receta.destroy();
+      } catch(err){
+        if (err instanceof ForeignKeyConstraintError){
+          throw new ConflictException("No se puede eliminar la receta, ya que esta siendo usada")
+        }
+      }
+
     } else {
       throw new NotFoundException({ error: "ID no existe", status: 404 }, "ID no existe");
     }
