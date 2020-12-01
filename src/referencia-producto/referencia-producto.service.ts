@@ -13,7 +13,7 @@ export class ReferenciaProductoService {
     }
 
     async inicializarValores(){
-      let result = await this.findAll();
+      const result = await this.findAll();
       if(result.length == 0) {
         await this.referenciaProductoModel.bulkCreate([
           { descripcion: 'Shampoo' },

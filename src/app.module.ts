@@ -15,6 +15,7 @@ import { RecetaModule } from './receta/receta.module';
 import { MateriaPrimaRecetaModule } from './materia-prima-receta/materia-prima-receta.module';
 import { UserModule } from './user/user.module';
 import { InventarioModule } from './inventario/inventario.module';
+import { RecursoFisicoModule } from './recurso-fisico/recurso-fisico.module';
 
 @Module({
   imports: [
@@ -33,7 +34,8 @@ import { InventarioModule } from './inventario/inventario.module';
     RecetaModule,
     MateriaPrimaRecetaModule,
     UserModule,
-    InventarioModule
+    InventarioModule,
+    RecursoFisicoModule
   ],
   controllers: [AppController],
   providers: [AppService],
