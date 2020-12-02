@@ -16,6 +16,7 @@ import { MateriaPrimaRecetaModule } from './materia-prima-receta/materia-prima-r
 import { UserModule } from './user/user.module';
 import { InventarioModule } from './inventario/inventario.module';
 import { RecursoFisicoModule } from './recurso-fisico/recurso-fisico.module';
+import { LoteEjecucionModule } from './lote-ejecucion/lote-ejecucion.module';
 
 @Module({
   imports: [
@@ -35,7 +36,8 @@ import { RecursoFisicoModule } from './recurso-fisico/recurso-fisico.module';
     MateriaPrimaRecetaModule,
     UserModule,
     InventarioModule,
-    RecursoFisicoModule
+    RecursoFisicoModule,
+    LoteEjecucionModule
   ],
   controllers: [AppController],
   providers: [AppService],
