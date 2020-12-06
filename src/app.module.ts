@@ -17,6 +17,7 @@ import { UserModule } from './user/user.module';
 import { InventarioModule } from './inventario/inventario.module';
 import { RecursoFisicoModule } from './recurso-fisico/recurso-fisico.module';
 import { LoteEjecucionModule } from './lote-ejecucion/lote-ejecucion.module';
+import { ReporteModule } from './reporte/reporte.module';
 
 @Module({
   imports: [
@@ -37,7 +38,8 @@ import { LoteEjecucionModule } from './lote-ejecucion/lote-ejecucion.module';
     UserModule,
     InventarioModule,
     RecursoFisicoModule,
-    LoteEjecucionModule
+    LoteEjecucionModule,
+    ReporteModule
   ],
   controllers: [AppController],
   providers: [AppService],
