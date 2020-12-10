@@ -3,5 +3,5 @@ export enum EstadoOrden {
   EN_COLA = 'EN COLA',
   EN_PRODUCCION = 'EN PRODUCCION',
   TERMINADA = 'TERMINADA',
-  ABORTADA = 'ABORTADA,'
+  ABORTADA = 'ABORTADA'
 }
