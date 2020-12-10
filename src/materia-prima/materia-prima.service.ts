@@ -1,9 +1,10 @@
 import { ConfigService } from './../shared/config/config.service';
 import { InventarioService } from './../inventario/inventario.service';
 import { CreateMateriaPrimaDto } from './dto/create-materia-prima.dto';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { MateriaPrima } from './model/materia-prima.model';
 import { InjectModel } from '@nestjs/sequelize';
+import { ForeignKeyConstraintError } from 'sequelize';
 
 @Injectable()
 export class MateriaPrimaService {
@@ -72,6 +73,13 @@ export class MateriaPrimaService {
     const materiaPrima = await this.findOne(id);
     if (materiaPrima) {
       await materiaPrima.destroy();      
+      try {
+        await materiaPrima.destroy();   
+      } catch (err) {
+        if (err instanceof ForeignKeyConstraintError) {
+          throw new ConflictException("No se puede eliminar la receta, ya que esta siendo usada")
+        }
+      }
     } else {
       throw new NotFoundException({ error: "ID no existe", status: 404 }, "ID no existe");
     }

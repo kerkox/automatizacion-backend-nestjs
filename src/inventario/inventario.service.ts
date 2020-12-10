@@ -1,3 +1,4 @@
+import { RecursoFisico } from './../recurso-fisico/model/recurso-fisico.model';
 import { ForeignKeyConstraintError, Op } from 'sequelize';
 import { MateriaPrima } from './../materia-prima/model/materia-prima.model';
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
@@ -33,7 +34,12 @@ export class InventarioService {
       {
         model: MateriaPrima,
         attributes: ['id', 'descripcion'],
-      }
+      },
+      {
+        model: RecursoFisico,
+        attributes: ['id', 'capacidad','disponible'],
+      },
+
     ]
   }
 
