@@ -13,6 +13,7 @@ import { InjectModel } from '@nestjs/sequelize';
 import { Transaction } from 'sequelize';
 import { AprobarOrdenProduccionDto } from './dto/aprobar-orden-produccion.dto';
 import { MateriaPrima } from 'src/materia-prima/model/materia-prima.model';
+import { EstadoOrdenProduccionDto } from './dto/estado-orden-produccion.dto';
 
 
 @Injectable()
@@ -21,7 +22,7 @@ export class OrdenProduccionService {
   includes: any
   attributes: any
   constructor(@InjectModel(OrdenProduccion)
-  private ordenProduccionModel: typeof OrdenProduccion,    
+  private ordenProduccionModel: typeof OrdenProduccion,
     private presentacionProductoService: PresentacionProductoService,
     private inventarioService: InventarioService) {
     this.inicilizarCampos();
@@ -91,7 +92,7 @@ export class OrdenProduccionService {
         ]
 
       },
-      
+
     ]
   }
 
@@ -104,7 +105,7 @@ export class OrdenProduccionService {
           {
             model: Prioridad,
             attributes: ['id', 'descripcion', 'nivel']
-          },          
+          },
           {
             model: PresentacionProducto,
             attributes: ['id', 'descripcion', 'cantidad']
@@ -146,7 +147,7 @@ export class OrdenProduccionService {
     ]
   }
 
-  async generarOrdenProduccion(ordenPedido: OrdenPedido, receta:Receta,transaction: Transaction): Promise<OrdenProduccion> {
+  async generarOrdenProduccion(ordenPedido: OrdenPedido, receta: Receta, transaction: Transaction): Promise<OrdenProduccion> {
 
     const ordenProduccion = new OrdenProduccion();
 
@@ -155,7 +156,7 @@ export class OrdenProduccionService {
     // Obtener los militos totales presentacion (ml) x cantidad de productos
     const mililitros_totales = presenteacionProducto.cantidad * ordenPedido.cantidad
 
-    
+
     const toneladas_totales = receta.densidad * mililitros_totales
 
     ordenProduccion.lotes_totales = 1;
@@ -176,11 +177,11 @@ export class OrdenProduccionService {
   async findAllByEstados(estadosOrden: EstadoOrden[]) {
     return this.ordenProduccionModel.findAll({
       attributes: this.attributes,
-      include: this.includesByEstadoOrden(estadosOrden),      
+      include: this.includesByEstadoOrden(estadosOrden),
     });
   }
 
-  async findOne(id: string): Promise<OrdenProduccion> {
+  async findOne(id: number): Promise<OrdenProduccion> {
     const ordenProduccion = await this.ordenProduccionModel.findByPk(id, {
       attributes: this.attributes,
       include: this.includes
@@ -204,7 +205,7 @@ export class OrdenProduccionService {
     return id;
   }
 
-  async delete(id: string): Promise<void> {
+  async delete(id: number): Promise<void> {
     const ordenProduccion = await this.findOne(id);
     if (ordenProduccion) {
       await ordenProduccion.destroy();
@@ -226,12 +227,12 @@ export class OrdenProduccionService {
     ordenes.forEach((orden) => {
       this.aprobarValidarOrden(orden)
     })
-    try{
-      await this.ejecutarOrdenProduccion({id:ordenes[0].id})
-    }catch(err ) {
+    try {
+      await this.ejecutarOrdenProduccion({ id: ordenes[0].id })
+    } catch (err) {
       this.showMessage("No se pudo iniciar la orden de produccion")
     }
-    
+
     // this.ordenProduccionModel.update(ordenes,{
 
     // })
@@ -252,7 +253,7 @@ export class OrdenProduccionService {
     const materias_primas = orden.orden_pedido.receta.materias_primas;
     const materias_primas_ids = materias_primas.map(materia_prima => materia_prima.id)
     const materias_cantidad = {}
-    for (let x = 0; x < materias_primas.length; x++){
+    for (let x = 0; x < materias_primas.length; x++) {
       materias_cantidad[materias_primas[x].id] = (materias_primas[x]['MateriaPrimaReceta'].porcentaje / 100) * orden.cantidad
     }
     this.showMessage("Cantidad Materias Primas")
@@ -261,16 +262,16 @@ export class OrdenProduccionService {
     this.showMessage("Inventario Materias Primas Disponible")
     this.showMessage(inventarios_materia)
     let disponible = true
-    disponible = inventarios_materia.every(inventario => (inventario.cantidad >= materias_cantidad[inventario.materia_prima_id])) 
-    
-    if(disponible) {
+    disponible = inventarios_materia.every(inventario => (inventario.cantidad >= materias_cantidad[inventario.materia_prima_id]))
+
+    if (disponible) {
       inventarios_materia.forEach(inventario => {
-        inventario.cantidad -= materias_cantidad[inventario.materia_prima_id] 
+        inventario.cantidad -= materias_cantidad[inventario.materia_prima_id]
         inventario.save()
       })
-    } 
+    }
     return disponible;
-    
+
   }
 
   private async isEnProduccion(): Promise<boolean> {
@@ -288,27 +289,27 @@ export class OrdenProduccionService {
     this.showMessage(orden_produccion != null)
     return orden_produccion != null
   }
-  private showMessage(message:any) {
+  private showMessage(message: any) {
     console.log("=========================================")
     console.log(message)
     console.log("=========================================")
   }
 
-  async ejecutarOrdenProduccion(aprobarOrdenProduccionDto: AprobarOrdenProduccionDto){
+  async ejecutarOrdenProduccion(aprobarOrdenProduccionDto: AprobarOrdenProduccionDto) {
     // aqui se ejecuta solamente una orden de produccion
     // 1. Luego se va a validar si puede o no arrancar,
     this.showMessage("Se va a ejecutar la Orden de produccion:")
-    if (await this.isEnProduccion()){
+    if (await this.isEnProduccion()) {
       this.showMessage("Existe una en produccion")
-      throw new ConflictException("Existe actualmente una orden en produccion");      
-    } 
+      throw new ConflictException("Existe actualmente una orden en produccion");
+    }
     this.showMessage("Continua para validar disponibilidad")
     const orden = await this.ordenProduccionModel.findByPk(aprobarOrdenProduccionDto.id, {
       include: this.includes
     })
-    
+
     // 2 Se valida primero que tengan disponibilidad de materias primas y se afecta el inventario si existe disponibilidad
-    if( await this.validarDisponibilidadMateriasPrimas(orden)) {
+    if (await this.validarDisponibilidadMateriasPrimas(orden)) {
       orden.orden_pedido.estado = EstadoOrden.EN_PRODUCCION
       orden.observaciones = null;
       await orden.orden_pedido.save()
@@ -322,6 +323,18 @@ export class OrdenProduccionService {
 
     return orden;
 
+  }
+
+  async actualizarEstadoOrdenProduccion(id:number,estadoOrdenProduccionDto: EstadoOrdenProduccionDto) {
+    try {
+      const orden_produccion = await this.findOne(id)
+      orden_produccion.orden_pedido.estado = estadoOrdenProduccionDto.estado;
+      await orden_produccion.orden_pedido.save();
+      return orden_produccion
+    } catch (err) {
+      console.log(err)
+      throw err
+    }
   }
 
 

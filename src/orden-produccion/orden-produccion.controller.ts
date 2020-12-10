@@ -2,8 +2,9 @@ import { EstadoOrden } from './../shared/enum/estado-orden';
 import { AprobarOrdenProduccionDto } from './dto/aprobar-orden-produccion.dto';
 import { OrdenProduccionService } from './orden-produccion.service';
 import { config } from './../config/config';
-import { Body, Controller, Get, Param, Post, Delete, HttpCode } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Delete, HttpCode, Put } from '@nestjs/common';
 import { OrdenProduccion } from './model/orden-produccion.model';
+import { EstadoOrdenProduccionDto } from './dto/estado-orden-produccion.dto';
 
 @Controller(config.api.ROUTE_BASE + 'orden-produccion')
 export class OrdenProduccionController {
@@ -26,7 +27,7 @@ export class OrdenProduccionController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string): Promise<OrdenProduccion> {
+  findOne(@Param('id') id: number): Promise<OrdenProduccion> {
     return this.ordenProduccionService.findOne(id);
   }
 
@@ -42,13 +43,13 @@ export class OrdenProduccionController {
     return this.ordenProduccionService.ejecutarOrdenProduccion(aprobarOrdenProduccionDto);
   }
 
-  // @Put(':id')
-  // update(@Param('id') id: string, @Body() updateOrdenProduccionDto: CreateOrdenProduccionDto) {
-  //   return this.ordenProduccionService.update(id, updateOrdenProduccionDto)
-  // }
+  @Put('/actualizar-estado/:id')
+  update(@Param('id') id: number, @Body() estadoOrdenProduccionDto: EstadoOrdenProduccionDto) {
+    return this.ordenProduccionService.actualizarEstadoOrdenProduccion(id, estadoOrdenProduccionDto)
+  }
 
   @Delete(':id')
-  delete(@Param('id') id: string): Promise<void> {
+  delete(@Param('id') id: number): Promise<void> {
     return this.ordenProduccionService.delete(id);
   }
 
