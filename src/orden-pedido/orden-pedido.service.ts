@@ -62,7 +62,6 @@ export class OrdenPedidoService {
           // 'tiempo_precalentamiento',
           // 'tiempo_mezclado',
           // 'temperatura_precalentamiento',
-          // 'temperatura_calentamiento'
         ],
         include: [
           {
